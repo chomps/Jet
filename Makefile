@@ -1,12 +1,12 @@
 
-INITIAL  = chevalier
+INITIAL  = galaxy
 HYDRO    = euler_sph
 GEOMETRY = spherical
 BOUNDARY = polar
 RIEMANN  = hllc
 TIMESTEP = rk2
-OUTPUT   = h5out
-RESTART  = h5in
+OUTPUT   = ascii
+RESTART  = no_restart
 
 UNAME = $(shell uname)
 ifeq ($(UNAME),Linux)
