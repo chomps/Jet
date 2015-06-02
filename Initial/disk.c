@@ -40,7 +40,7 @@ void initial( double * prim , double * x ){
 
 //Disk Density
    
-   double rho_disk = (1./hr/10.03)*(M_disk/pow(R_disk,3.)*pow(r/R_disk,-2.))*exp(2./hr/hr*(sin(th)-1.));
+   double rho_disk = sqrt(1./hr/hr+sqrt(.5)*M_PI)/10.4*(M_disk/pow(R_disk,3.)*pow(r/R_disk,-2.))*exp(2./hr/hr*(sin(th)-1.));
    rho_disk *= exp(-pow(r/R_disk,4.));
 
    double rho = rho_disk + rho_wind + rho_ej;
