@@ -690,3 +690,24 @@ void AMR( struct domain * theDomain ){
    }
 }
 
+double get_entropy( double * );
+
+void reset_entropy( struct domain * theDomain ){
+   struct cell ** theCells = theDomain->theCells;
+   int Nt = theDomain->Nt;
+   int Np = theDomain->Np;
+   int * Nr = theDomain->Nr;
+
+   if( NUM_N>0 ){
+      int i,jk;
+      for( jk=0 ; jk<Nt*Np ; ++jk ){
+         for( i=0 ; i<Nr[jk]-1 ; ++i ){
+            struct cell * c = &(theCells[jk][i]);  
+            double s = get_entropy( c->prim );
+            c->prim[NUM_C] = s;
+            c->cons[NUM_C] = s*c->cons[DEN];
+         }
+      }    
+   }   
+}
+

@@ -99,6 +99,7 @@ int read_par_file( struct domain * theDomain ){
          err += readvar( pfile , "Nozzle_Time"     , VAR_DOUB , &(theList->Nozzle_Time)     );
          err += readvar( pfile , "Use_Logtime"     , VAR_INT  , &(theList->Out_LogTime)     );
          err += readvar( pfile , "Initial_Cons"    , VAR_INT  , &(theList->Initial_Cons)    );
+         err += readvar( pfile , "Reset_Entropy"   , VAR_INT  , &(theList->Reset_Entropy)   );
       }
       MPI_Barrier(MPI_COMM_WORLD);
    }

@@ -86,6 +86,7 @@ int Cell2Doub( struct cell * c , double * Q , int mode ){
 double get_dV( double * , double * );
 void prim2cons( double * , double * , double , double );
 void cons2prim( double * , double * , double , double );
+void reset_entropy( struct domain * );
 
 void output( struct domain * theDomain , char * filestart ){
 
@@ -238,6 +239,8 @@ void output( struct domain * theDomain , char * filestart ){
       myIndex += myNtot;
       MPI_Bcast( &myIndex , 1 , MPI_INT , nrk , theDomain->theComm );
    }
+
+   if( theDomain->theParList.Reset_Entropy ) reset_entropy( theDomain );
 /*
    int j_min = 0;
    int j_max = Nt;

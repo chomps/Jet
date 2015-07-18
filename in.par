@@ -9,8 +9,8 @@ T_End			1.0
 //Output Frequency//
 Num_Reports		1e5
 Num_Snapshots		0
-Num_Checkpoints		0
-Use_Logtime		0
+Num_Checkpoints		100
+Use_Logtime		1
 
 //Grid Dimensions//
 Num_R			100 
@@ -41,6 +41,7 @@ CFL			0.05  //Should be 0.05 unless you're Paul Duffell
 PLM			1.0
 Density_Floor		0.0
 Pressure_Floor		1e-10
+Reset_Entropy		1
 
 //Hydro Parameters
 Adiabatic_Index		1.66666666667 //1.33333333333333
