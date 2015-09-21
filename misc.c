@@ -643,7 +643,7 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
 
       double rp = sweep[iL].riph;
       double rm = sweep[iL-1].riph;
-      double r0 = sqrt( .5*(rp*rp+rm*rm) );
+      double r0 = pow( .5*(rp*rp*rp + rm*rm*rm) , 1./3. );//sqrt( .5*(rp*rp+rm*rm) );
 
       sweep[iL].riph   = r0;
       sweep[iL].RKriph = r0;

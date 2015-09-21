@@ -51,7 +51,7 @@ void boundary_trans( struct domain * theDomain , struct face * theFaces , int * 
    int * dim_rank = theDomain->dim_rank;
    int * dim_size = theDomain->dim_size;
 
-   int copy_left  = 0;
+   int copy_left  = 1;
    int copy_right = 1;
 
    int LRmin = 0; 

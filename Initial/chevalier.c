@@ -24,12 +24,22 @@ void initial( double * prim , double * x ){
    double rho2 = q*pow(r,-s);
 
    double R0 = pow( pow(t,n-3.)*pow(g,n)/q , 1./(n-s) );
-   double r1 = 0.065*R0;
-   if( r<r1 ) rho1 = pow(r1/t/g,-n)*pow(t,-3.);
 
    double rho = rho1+rho2;
    double v   = (r/t)*rho1/(rho1+rho2);
    double X   = rho1/(rho1+rho2);
+
+   double r1 = 0.065*R0;
+   if( r<r1 ){
+      rho = pow(r1/t/g,-n)*pow(t,-3.);
+      v = 0.0;
+   }
+
+   if( X < 0.5 ){
+      X = 0.0;
+   }else{
+      X = 1.0;
+   }
 
    double k = 50.0;
    double th = x[1];
