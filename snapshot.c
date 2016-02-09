@@ -139,7 +139,7 @@ void snapshot( struct domain * theDomain , char * filestart ){
       fclose( pFile_1d );
    }
 
-   double thetaSlice = 0.05;
+   double thetaSlice = 10.0;//0.5;
    double thP = t_jph[Nt-1];
    double thM = t_jph[-1];
    double Dth = thP-thM;
@@ -179,9 +179,11 @@ void snapshot( struct domain * theDomain , char * filestart ){
    MPI_Allreduce( MPI_IN_PLACE , &maxgam , 1 , MPI_DOUBLE , MPI_MAX , theDomain->theComm );
    int Ngam = 1000;
    double Ebin[Ngam];
+   double Mbin[Ngam];
    double Mtot = 0.0;
    int n;
    for( n=0 ; n<Ngam ; ++n ) Ebin[n] = 0.0;
+   for( n=0 ; n<Ngam ; ++n ) Mbin[n] = 0.0;
    int jmin = Ng;
    int jmax = Nt-Ng;
    if( dim_rank[0]==0 ) jmin = 0;
@@ -197,10 +199,12 @@ void snapshot( struct domain * theDomain , char * filestart ){
          if( nn > Ngam ) nn = Ngam;
          if( nn < 0 ) nn = 0;
          Ebin[nn] += theCells[j][i].cons[TAU];
+         Mbin[nn] += theCells[j][i].cons[DEN];
          Mtot += theCells[j][i].cons[DEN];
       }
    }
    MPI_Allreduce( MPI_IN_PLACE , Ebin , Ngam , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
+   MPI_Allreduce( MPI_IN_PLACE , Mbin , Ngam , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
    MPI_Allreduce( MPI_IN_PLACE , &Mtot ,  1  , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
 
    char fname_ebins[256];
@@ -211,11 +215,12 @@ void snapshot( struct domain * theDomain , char * filestart ){
       FILE * gamFile = fopen( fname_ebins ,"w");
       for( n=Ngam-2 ; n>=0 ; --n ){
          Ebin[n] += Ebin[n+1];
+         Mbin[n] += Mbin[n+1];
       }
-      fprintf(gamFile,"# E/M = %e\n",Ebin[0]/Mtot);
+      fprintf(gamFile,"#E = %e, M=%e, E/M = %e\n",Ebin[0],Mbin[0],Ebin[0]/Mtot);
       for( n=0 ; n<Ngam ; ++n ){
          double gam = ((double)n/(double)Ngam)*maxgam;
-         fprintf(gamFile,"%e %e\n",gam,Ebin[n]/Ebin[0]);
+         fprintf(gamFile,"%e %e %e\n",gam,Ebin[n]/Ebin[0],Mbin[n]/Mbin[0]);
       }
       fclose(gamFile);
    }

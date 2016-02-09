@@ -36,15 +36,15 @@ void initial( double * prim , double * x ){
 
    double rho_ej = rho_T*pow(r/vt/t,-d);
    if( r>vt*t ) rho_ej = rho_T*pow(r/vt/t,-n);
-   //if( r>10.*vt*t ) rho_ej = 0.0;
+   if( r>10.*vt*t ) rho_ej = 0.0;
 
 //Disk Density
    
-   double rho_disk = sqrt(1./hr/hr+sqrt(.5)*M_PI)/10.4*(M_disk/pow(R_disk,3.)*pow(r/R_disk,-2.))*exp(2./hr/hr*(sin(th)-1.));
-   rho_disk *= exp(-pow(r/R_disk,4.));
+   double rho_disk = sqrt(1./hr/hr+.25*M_PI)*(M_disk/pow(R_disk,3.)*pow(r/R_disk,-2.))*exp(2./hr/hr*(sin(th)-1.));
+   rho_disk *= exp(-pow(r/R_disk,4.))/10.2;  ///10.4;
 
    double rho = rho_disk + rho_wind + rho_ej;
-   double Pp = 1e-10*rho;
+   double Pp = 1e-3*rho;
 
    double v = r/t*(rho_ej/rho);
 

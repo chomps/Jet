@@ -3,32 +3,32 @@
 Restart			0	//Restart from input.h5
 
 //Time Range//
-T_Start			0.003
-T_End			1.0
+T_Start			1e-3
+T_End			1e3
 
 //Output Frequency//
 Num_Reports		1e5
 Num_Snapshots		0
-Num_Checkpoints		100
+Num_Checkpoints		60 //1000
 Use_Logtime		1
 
 //Grid Dimensions//
-Num_R			100 
+Num_R			64
 Num_Theta		32
 Num_Phi			1
 
 //Domain Parameters//
-R_Min			0.0003
-R_Max			0.3
-Theta_Min		0.0
+R_Min			3e-4 //1e-4
+R_Max			1e-1 //3e-2
+Theta_Min		0.0 //0.7853982   //0.0
 Theta_Max		1.5707963268 //3.14159265358979323844
 Phi_Max			6.28318530717958647688
 Log_Zoning		1.0
-Max_Aspect_Short	2.5
+Max_Aspect_Short	3.0
 Max_Aspect_Long		2.5
 Absorbing_BC		0
 Move_Boundaries		1
-Shock_Position		0.6
+Shock_Position		0.75
 Move_w0			0.0
 Move_w1			0.0
 Initial_Regrid		0
@@ -40,11 +40,11 @@ Initial_Cons		10
 CFL			0.05  //Should be 0.05 unless you're Paul Duffell
 PLM			1.0
 Density_Floor		0.0
-Pressure_Floor		1e-10
-Reset_Entropy		1
+Pressure_Floor		1e-8
+Reset_Entropy		0
 
 //Hydro Parameters
-Adiabatic_Index		1.66666666667 //1.33333333333333
+Adiabatic_Index		1.33333333333333 //1.6666666666666667
 
 //Gravity Parameters
 Gravity_Switch		0
@@ -52,15 +52,15 @@ PointMass		0
 Output_Mass		0
 
 //Nozzle Parameters
-Nozzle_Switch		0
-Nozzle_Power		3e-4 //3e-3
-Nozzle_Gamma		10.0
+Nozzle_Switch		1
+Nozzle_Power		1e-4
+Nozzle_Gamma		50.0
 Nozzle_Eta		1000.0
 Nozzle_r0		0.02
-Nozzle_th0		1.0
-Nozzle_Time		30.0
+Nozzle_th0		0.2 //1.0
+Nozzle_Time		4.3//30.0
 
 //Initial Parameters
-Explosion_Energy	0.2
+Explosion_Energy	0.01
 
 

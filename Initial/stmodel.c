@@ -10,31 +10,26 @@ double f( double r , double a , double b , double M ){
 
 void initial( double * prim , double * x ){
 
-   double M  = 1.0;
-   double R  = 1.0;
+   double M0 = 1.0;
+   double R0 = 1.0;
    double r  = x[0];
 
-   double rho0 = 1e-6;
+   double rhoc = 25.95*M0/pow(R0,3.);
 
-   double a1 = 23.4*(0.4/R);
-   double b1 = 0.058*(R/0.4);
-   double M1 = 11.27/11.2*M;
+   double k = 6.0;
+   double k2 = 1.5;
 
-   double a2 = 472.*(0.4/R);
-   double b2 = 0.002*(R/0.4);
-   double M2 = 3.24/11.2*M;
+   double n = 0.5;
+   double A = 0.00583*M0/pow(R0,3.);
 
-   double f1 = f( r , a1 , b1 , M1 ); 
-   double f2 = f( r , a2 , b2 , M2 ); 
+   double Rmax = 1.0*R0;
+   
+   double rho_wind = 1e-9*M0/pow(R0,3.);
 
-   //double Vol = 2.*pow( sqrt(2.*M_PI)*R , 3. );
-   //double rho0 = M/Vol;
+   double X = 1.-r/Rmax;
+   if( X<0.0 ) X = 0.0;
 
-   //double rho = rho0*exp(-.5*r*r/R/R);
-
-   double rho = (f1+f2)/4./M_PI/r/r * pow( 1. - r/R , 3.85 ) + rho0;
-
-   if( r >= R ) rho = rho0*(R*R/r/r);
+   double rho = rhoc*pow(X,k2)/pow( 1. + pow(A/rhoc*pow(r/R0,-k) ,-n) ,1./n) + rho_wind*pow(Rmax/r,2.);
 
    double Pp = 1e-4*rho;
 

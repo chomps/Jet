@@ -237,9 +237,14 @@ void move_BCs( struct domain * theDomain , double dt ){
    w1 *= ( 1. + log(r1/rhalf)/log(rmax/rhalf) );
 
    if( w1 > 0.0 ){
-   
-      double rmin_new = rmin + w1*(rmin/r1)*dt;
-      double rmax_new = rmax + w1*(rmax/r1)*dt;
+  
+      double w_out = w1*(rmax/r1);
+      double w_in  = w1*(rmin/r1);
+//This shit should not be hard-coded.  Fix this when you fix that Nickel crap. 
+      if( w_in > 1e-3 ) w_in = 1e-3;
+
+      double rmin_new = rmin + w_in*dt;
+      double rmax_new = rmax + w_out*dt;
       for( j=0 ; j<Nt ; ++j ){
          for( k=0 ; k<Np ; ++k ){
 
@@ -630,7 +635,7 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       Nr[jk] -= 1;
       *swptr = (struct cell *) realloc( sweep , Nr[jk]*sizeof(struct cell) );
       sweep = *swptr;
-      if( iS < iL ) iL--;
+      if( iS < iL ) iL -= 1;
 
    }
 
@@ -709,5 +714,26 @@ void reset_entropy( struct domain * theDomain ){
          }
       }    
    }   
+}
+
+void make_nickel( struct domain * theDomain ){
+   struct cell ** theCells = theDomain->theCells;
+   int Nt = theDomain->Nt;
+   int Np = theDomain->Np;
+   int * Nr = theDomain->Nr;
+
+   if( NUM_N>0 ){
+      int i,jk;
+      for( jk=0 ; jk<Nt*Np ; ++jk ){
+         for( i=0 ; i<Nr[jk]-1 ; ++i ){
+            struct cell * c = &(theCells[jk][i]);  
+            double Pp = c->prim[PPP];
+            if( Pp > 900./5. ){
+               c->prim[NUM_C] = 1.0; 
+               c->cons[NUM_C] = c->cons[DEN];
+            }
+         }    
+      }    
+   }  
 }
 

@@ -17,6 +17,10 @@ double get_vr( double * prim ){
    return( ur/u0 );
 }
 
+double get_entropy( double * prim ){
+   return( log( prim[PPP] / pow( prim[RHO] , GAMMA_LAW ) ) ); 
+}
+
 void prim2cons( double * prim , double * cons , double r , double dV ){
 
    double rho = prim[RHO];

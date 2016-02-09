@@ -1,6 +1,6 @@
 
-INITIAL  = disk
-HYDRO    = euler_sph
+INITIAL  = stmodel
+HYDRO    = rel_sph
 GEOMETRY = spherical
 BOUNDARY = polar
 RIEMANN  = hllc

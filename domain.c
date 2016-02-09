@@ -144,7 +144,9 @@ void possiblyOutput( struct domain * theDomain , int override ){
       theDomain->nrpt = n0;
       //longandshort( &theDomain , &L , &S , &iL , &iS , theDomain.theCells[0] , 0 , 0 );
       report( theDomain , t );
-      if( theDomain->rank==0 ) printf("t = %.4e Nr = %d\n",t,theDomain->Nr[0]);
+      int Nr = theDomain->Nr[0];
+      double rout = theDomain->theCells[0][Nr-1].riph;
+      if( theDomain->rank==0 ) printf("t = %.4e Nr = %d Rout = %.2e\n",t,Nr,rout);
    }
    n0 = (int)( t*Nchk/t_fin );
    if( LogOut ) n0 = (int)( Nchk*log(t/t_min)/log(t_fin/t_min) );

@@ -18,6 +18,7 @@ void report( struct domain * theDomain , double t ){
    double L1 = 0.0;
    double uSum = 0.0;
    double ESum = 0.0;
+   double EJet = 0.0;
    double XSum = 0.0;
    double MSum = 0.0;
    double uMax = 0.0;
@@ -40,6 +41,8 @@ void report( struct domain * theDomain , double t ){
          double gam = sqrt( 1. + u*u );
          uSum += u*E;
          ESum += E;
+         double u_eff = sqrt( gam*h*gam*h - 1.0 );
+         if( u_eff > 1.0 ) EJet += E;
          XSum += X*E;
          MSum += M;
          if( uMax < u ) uMax = u;
@@ -51,6 +54,7 @@ void report( struct domain * theDomain , double t ){
    MPI_Allreduce( MPI_IN_PLACE , &gh_max , 1 , MPI_DOUBLE , MPI_MAX , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &uSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &ESum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+   MPI_Allreduce( MPI_IN_PLACE , &EJet , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &XSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &MSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    double uAv = uSum/ESum;
@@ -75,7 +79,7 @@ void report( struct domain * theDomain , double t ){
 
    if( rank==0 ){
       FILE * rFile = fopen("report.dat","a");
-      fprintf(rFile,"%e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,gh_max);
+      fprintf(rFile,"%e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max);
       fclose(rFile);
    }
 

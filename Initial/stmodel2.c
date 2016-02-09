@@ -20,6 +20,10 @@ void initial( double * prim , double * x ){
    double R2 = .0125*R0;
    double R3 = .65*R0;
 
+   double x1 = 0.00354*R0;
+   double x2 = 0.01385*R0;
+   double x3 = 0.112*R0;
+
    double k1 = 3.24;
    double k2 = 2.57;
    double n  = 16.7;

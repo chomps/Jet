@@ -25,6 +25,7 @@ void exchangeData( struct domain * , int );
 void gravity_setup( struct domain * );
 void gravity_addsrc( struct domain * , double );
 void nozzle( struct domain * , double );
+void make_nickel( struct domain * );
 
 int get_num_tpFaces( int , int , int );
 
@@ -61,6 +62,7 @@ void onestep( struct domain * theDomain , double RK , double dt , int last_step 
    add_source( theDomain , dt );
    if( grav_switch ) gravity_addsrc( theDomain , dt );
    if( nozzle_switch ) nozzle( theDomain , dt );
+   if( 1 ) make_nickel( theDomain );
    move_cells( theDomain , RK , dt );
    calc_dr( theDomain );
    calc_prim( theDomain );
