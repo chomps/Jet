@@ -21,6 +21,7 @@ void report( struct domain * theDomain , double t ){
    double EJet = 0.0;
    double XSum = 0.0;
    double MSum = 0.0;
+   double Ni   = 0.0;
    double uMax = 0.0;
    double gh_max = 0.0;
    double rMax = 0.0;
@@ -45,6 +46,7 @@ void report( struct domain * theDomain , double t ){
          if( u_eff > 1.0 ) EJet += E;
          XSum += X*E;
          MSum += M;
+         Ni += X*M;
          if( uMax < u ) uMax = u;
          if( gh_max < gam*h ) gh_max = gam*h;
       }
@@ -57,6 +59,7 @@ void report( struct domain * theDomain , double t ){
    MPI_Allreduce( MPI_IN_PLACE , &EJet , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &XSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &MSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+   MPI_Allreduce( MPI_IN_PLACE , &Ni   , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    double uAv = uSum/ESum;
 
    for( j=jmin ; j<jmax ; ++j ){
@@ -76,10 +79,27 @@ void report( struct domain * theDomain , double t ){
    MPI_Allreduce( MPI_IN_PLACE , &rMax , 1 , MPI_DOUBLE , MPI_MAX , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &rMin , 1 , MPI_DOUBLE , MPI_MIN , grid_comm );
 
+   double v_phot = 0.0;
+   if( rank==0 ){
+      int jk = 0;
+      double tau = 0.0;
+      for( i=Nr[jk]-1 ; i>=0 && tau<1. ; --i ){
+         struct cell * c = &(theCells[jk][i]);
+         double rho = c->prim[RHO];
+         double kappa = 3.*t*t;
+         double dr = c->dr;
+         double r = c->riph;
+         tau += rho*kappa*dr;
+         double ur = c->prim[UU1];
+         double up = c->prim[UU2];
+         double gam = sqrt(1.+ur*ur+up*up);
+         v_phot = ur/gam;
+      }    
+   }
 
    if( rank==0 ){
       FILE * rFile = fopen("report.dat","a");
-      fprintf(rFile,"%e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max);
+      fprintf(rFile,"%e %e %e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max,v_phot,Ni);
       fclose(rFile);
    }
 

@@ -1,6 +1,6 @@
 
 //Jet Parameter File//
-Restart			0	//Restart from input.h5
+Restart			1	//Restart from input.h5
 
 //Time Range//
 T_Start			1e-3
@@ -57,8 +57,8 @@ Nozzle_Power		1e-4
 Nozzle_Gamma		50.0
 Nozzle_Eta		1000.0
 Nozzle_r0		0.02
-Nozzle_th0		0.2 //1.0
-Nozzle_Time		4.3//30.0
+Nozzle_th0		0.2
+Nozzle_Time		5.0
 
 //Initial Parameters
 Explosion_Energy	0.01
