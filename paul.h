@@ -39,7 +39,7 @@ struct param_list{
    int Nozzle_Switch;
    double Nozzle_Power, Nozzle_Gamma, Nozzle_Eta, Nozzle_r0, Nozzle_th0, Nozzle_Time;
 
-   double Explosion_Energy;
+   double Explosion_Energy,Gam_0,Gam_Boost;
 
    int restart_flag;
 };
