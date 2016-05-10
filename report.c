@@ -9,6 +9,7 @@ void report( struct domain * theDomain , double t ){
    int rank = theDomain->rank;
    int size = theDomain->size;
    MPI_Comm grid_comm = theDomain->theComm;
+   double * t_jph = theDomain->t_jph;
 
    int jmin = Ng;
    int jmax = Nt-Ng;
@@ -26,9 +27,12 @@ void report( struct domain * theDomain , double t ){
    double gh_max = 0.0;
    double rMax = 0.0;
    double rMin = HUGE_VAL;
+   double I_th = 0.0;
    int i,j;
    for( j=jmin ; j<jmax ; ++j ){
       int jk = j;
+      double dOmega = 2.*M_PI*(cos(t_jph[j-1])-cos(t_jph[j]));
+      double dE = 0.0;
       for( i=0 ; i<Nr[jk] ; ++i ){
          struct cell * c = &(theCells[jk][i]);
          double ur = c->prim[UU1];
@@ -42,6 +46,7 @@ void report( struct domain * theDomain , double t ){
          double gam = sqrt( 1. + u*u );
          uSum += u*E;
          ESum += E;
+         dE += E;
          double u_eff = sqrt( gam*h*gam*h - 1.0 );
          if( u_eff > 1.0 ) EJet += E;
          XSum += X*E;
@@ -50,6 +55,7 @@ void report( struct domain * theDomain , double t ){
          if( uMax < u ) uMax = u;
          if( gh_max < gam*h ) gh_max = gam*h;
       }
+      I_th += dE*dE/dOmega;
    }
 
    MPI_Allreduce( MPI_IN_PLACE , &uMax   , 1 , MPI_DOUBLE , MPI_MAX , grid_comm );
@@ -60,7 +66,10 @@ void report( struct domain * theDomain , double t ){
    MPI_Allreduce( MPI_IN_PLACE , &XSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &MSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &Ni   , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+   MPI_Allreduce( MPI_IN_PLACE , &I_th   , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+
    double uAv = uSum/ESum;
+   double sintj2 = ESum/sqrt( 4.*M_PI*I_th );
 
    for( j=jmin ; j<jmax ; ++j ){
       int jk = j;
@@ -88,7 +97,7 @@ void report( struct domain * theDomain , double t ){
          double rho = c->prim[RHO];
          double kappa = 3.*t*t;
          double dr = c->dr;
-         double r = c->riph;
+         //double r = c->riph;
          tau += rho*kappa*dr;
          double ur = c->prim[UU1];
          double up = c->prim[UU2];
@@ -99,7 +108,7 @@ void report( struct domain * theDomain , double t ){
 
    if( rank==0 ){
       FILE * rFile = fopen("report.dat","a");
-      fprintf(rFile,"%e %e %e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max,v_phot,Ni);
+      fprintf(rFile,"%e %e %e %e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max,v_phot,Ni,sintj2);
       fclose(rFile);
    }
 

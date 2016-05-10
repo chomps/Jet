@@ -83,6 +83,8 @@ int read_par_file( struct domain * theDomain ){
          err += readvar( pfile , "Output_Mass"     , VAR_INT  , &(theList->Output_Mass)     );
          err += readvar( pfile , "PointMass"       , VAR_DOUB , &(theList->PointMass)       );
          err += readvar( pfile , "Explosion_Energy", VAR_DOUB , &(theList->Explosion_Energy));
+         err += readvar( pfile , "Gam_0"           , VAR_DOUB , &(theList->Gam_0)           );
+         err += readvar( pfile , "Gam_Boost"       , VAR_DOUB , &(theList->Gam_Boost)       );
          err += readvar( pfile , "Absorbing_BC"    , VAR_INT  , &(theList->Absorb_BC)       );
          err += readvar( pfile , "Move_Boundaries" , VAR_INT  , &(theList->Move_BCs)        );
          err += readvar( pfile , "Shock_Position"  , VAR_DOUB , &(theList->ShockPos)        );

@@ -21,6 +21,7 @@ void setNozzleParams( struct domain * theDomain ){
 
 void noz_src( double * cons , double dVdt , double r , double theta , double t , double r_min ){
 
+/*
    double r0 = 5.*r_min;
    double v = sqrt(1.-1./gam0/gam0);
 
@@ -37,12 +38,23 @@ void noz_src( double * cons , double dVdt , double r , double theta , double t ,
    cons[SS1] += SS*dVdt;// *cos(theta);
    //cons[SS2] += SS*dVdt*sin(theta)*(-r);
    cons[TAU] += (SE-SM)*dVdt;
+
+   if(NUM_N>0){
+      cons[NUM_C] += SM*dVdt;
+   }
+*/
 /*
    int q;
    for( q=NUM_C ; q<NUM_C+NUM_N ; ++q ){
       cons[q] += SM*dVdt;
    }
 */
+   double r0 = 5.*r_min;
+   double Vol = 4./3.*M_PI*pow(r0,3.);
+   double Q = 0.0;
+   if( r<r0 ) Q = Pow/Vol*pow(1.+t/tjet,-2.);
+   cons[TAU] += Q*dVdt;
+   cons[DEN] += Q*3e-4*dVdt;
 /*
    double R = 0.05;
    double Vol = 4./3.*M_PI*pow(R,3.);

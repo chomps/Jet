@@ -56,8 +56,8 @@ void gridSetup( struct domain * theDomain ){
 
    for( j=-1 ; j<Nt ; ++j ){
       double x = x0 + ((double)j+1.)*dx;
-      double theta = THETA_MIN + 2.*atan( tan(.5*th0)*exp(k0*x) )-th0;//(THETA_MAX-THETA_MIN)*x;
-      //double theta = THETA_MIN + (THETA_MAX-THETA_MIN)*x;
+      //double theta = THETA_MIN + 2.*atan( tan(.5*th0)*exp(k0*x) )-th0;//(THETA_MAX-THETA_MIN)*x;
+      double theta = THETA_MIN + (THETA_MAX-THETA_MIN)*x;
       theDomain->t_jph[j] = theta;//t0 + ((double)j+1.)*dth;
    }
    double dphi = PHI_MAX/(double)NUM_P;
@@ -67,8 +67,11 @@ void gridSetup( struct domain * theDomain ){
    }
 
    for( j=0 ; j<Nt ; ++j ){
+      double dth_j = theDomain->t_jph[j]-theDomain->t_jph[j-1];
+      double dth = (THETA_MAX-THETA_MIN)/(double)NUM_T;
+      double nrj = theDomain->theParList.Num_R*dth/dth_j;
       for( k=0 ; k<Np ; ++k ){
-         theDomain->Nr[j+k*Nt] = theDomain->theParList.Num_R;
+         theDomain->Nr[j+k*Nt] = (int)nrj;
       }
    }
 

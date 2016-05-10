@@ -139,7 +139,7 @@ void snapshot( struct domain * theDomain , char * filestart ){
       fclose( pFile_1d );
    }
 
-   double thetaSlice = 10.0;//0.5;
+   double thetaSlice = 0.5;//10.0;//0.5;
    double thP = t_jph[Nt-1];
    double thM = t_jph[-1];
    double Dth = thP-thM;

@@ -1,6 +1,6 @@
 
-INITIAL  = stmodel
-HYDRO    = rel_sph
+INITIAL  = ejecta
+HYDRO    = euler_sph
 GEOMETRY = spherical
 BOUNDARY = polar
 RIEMANN  = hllc

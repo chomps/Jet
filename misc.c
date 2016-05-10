@@ -236,12 +236,15 @@ void move_BCs( struct domain * theDomain , double dt ){
    double rhalf = ShockPos*rmax + (1.-ShockPos)*rmin;
    w1 *= ( 1. + log(r1/rhalf)/log(rmax/rhalf) );
 
+   w1 = 1.0;
+   r1 = w1*theDomain->t;
+
    if( w1 > 0.0 ){
   
       double w_out = w1*(rmax/r1);
       double w_in  = w1*(rmin/r1);
 //This shit should not be hard-coded.  Fix this when you fix that Nickel crap. 
-      if( w_in > 1e-3 ) w_in = 1e-3;
+//      if( w_in > 1e-3 ) w_in = 1e-3;
 
       double rmin_new = rmin + w_in*dt;
       double rmax_new = rmax + w_out*dt;
@@ -728,7 +731,7 @@ void make_nickel( struct domain * theDomain ){
          for( i=0 ; i<Nr[jk]-1 ; ++i ){
             struct cell * c = &(theCells[jk][i]);  
             double Pp = c->prim[PPP];
-            if( Pp > 900./5. ){
+            if( Pp > 60. ){
                c->prim[NUM_C] = 1.0; 
                c->cons[NUM_C] = c->cons[DEN];
             }
