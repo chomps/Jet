@@ -20,7 +20,7 @@ int readvar( char * filename , char * varname , int vartype , void * ptr ){
    }
    
    fclose( inFile );
-   if( found==0 ) return(1);
+   if( found==0 ){ printf("%s not found\n",varname); return(1); }
 
    char * s2 = s1+strlen(nm)+strspn(s1+strlen(nm),"\t :=>_");
 
@@ -110,7 +110,7 @@ int read_par_file( struct domain * theDomain ){
    MPI_Allreduce( &err , &errtot , 1 , MPI_INT , MPI_SUM , MPI_COMM_WORLD );
 
    if( errtot > 0 ){
-      printf("Read Failed\n");
+      printf("Read Failed, err = %d\n",err);
       return(1);
    }
 

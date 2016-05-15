@@ -49,12 +49,16 @@ void noz_src( double * cons , double dVdt , double r , double theta , double t ,
       cons[q] += SM*dVdt;
    }
 */
-   double r0 = 5.*r_min;
+
+   double r0 = 3.*r_min;
    double Vol = 4./3.*M_PI*pow(r0,3.);
    double Q = 0.0;
+   double v_wind = 50.0;
    if( r<r0 ) Q = Pow/Vol*pow(1.+t/tjet,-2.);
    cons[TAU] += Q*dVdt;
-   cons[DEN] += Q*3e-4*dVdt;
+   cons[SS1] += 2.*Q/v_wind*dVdt;
+   cons[DEN] += 2.*Q/v_wind/v_wind*dVdt;
+
 /*
    double R = 0.05;
    double Vol = 4./3.*M_PI*pow(R,3.);

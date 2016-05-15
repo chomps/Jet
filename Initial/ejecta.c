@@ -32,7 +32,7 @@ void initial( double * prim , double * x ){
    double rho = rho_ej;
    double Pp = 1e-10*rho*vt2;
    double v = r/t;
-   if( r>2.*R ) v *= exp(-pow((r-2.*R)/2./R,4.));
+//   if( r>2.*R ) v *= exp(-pow((r-2.*R)/2./R,4.));
 
    prim[RHO] = rho;
    prim[PPP] = Pp;

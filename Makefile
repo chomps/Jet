@@ -2,7 +2,7 @@
 INITIAL  = ejecta
 HYDRO    = euler_sph
 GEOMETRY = spherical
-BOUNDARY = polar
+BOUNDARY = neumann
 RIEMANN  = hllc
 TIMESTEP = rk2
 OUTPUT   = h5out

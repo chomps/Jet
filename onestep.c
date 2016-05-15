@@ -66,12 +66,12 @@ void onestep( struct domain * theDomain , double RK , double dt , int last_step 
    move_cells( theDomain , RK , dt );
    calc_dr( theDomain );
    calc_prim( theDomain );
-   boundary_r( theDomain );
 
    if( last_step ){
       AMR( theDomain );
       if( theDomain->theParList.Move_BCs ) move_BCs( theDomain , global_dt );
    }
+   boundary_r( theDomain );
 
    if( Nt > 1 ){
       exchangeData( theDomain , 0 ); //Reverse these two when you get the chance!
