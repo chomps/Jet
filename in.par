@@ -8,7 +8,7 @@ T_End			1e3
 
 //Output Frequency//
 Num_Reports		1e5
-Num_Snapshots		0
+Num_Snapshots		60
 Num_Checkpoints		60 //1000
 Use_Logtime		1
 
