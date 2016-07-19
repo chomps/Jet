@@ -27,7 +27,7 @@ struct param_list{
 
    double LogZoning, MaxShort, MaxLong, Target_X, Target_W, ShockPos;
    int Absorb_BC,Move_BCs,Initial_Regrid,Initial_Cons;
-   int Reset_Entropy;
+   int Reset_Entropy,Add_Cooling,Make_Nickel;
 
    double CFL, PLM;
    double Density_Floor, Pressure_Floor;

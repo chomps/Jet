@@ -130,55 +130,18 @@ void set_wcell( struct domain * theDomain ){
       for( k=0 ; k<Np ; ++k ){
          int jk = j+Nt*k;
          theCells[jk][0].wiph = 0.0;
-         for( i=1 ; i<Nr[jk]-1 ; ++i ){
+         theCells[jk][Nr[jk]-1].wiph = 0.0;
+         for( i=1 ; i<Nr[jk]-2 ; ++i ){
             struct cell * cL = &(theCells[jk][i  ]);  
             struct cell * cR = &(theCells[jk][i+1]);
             double wL = get_vr( cL->prim );
             double wR = get_vr( cR->prim );
-            double dw = .5*(wL + wR); 
-            cL->wiph += dw;
+            cL->wiph = .5*(wL+wR);
          }
       }    
    }
 }
-/*
-void set_w0( struct domain * theDomain ){
-   struct cell ** theCells = theDomain->theCells;
-   int Nt = theDomain->Nt;
-   int Np = theDomain->Np;
-   int * Nr = theDomain->Nr;
-   double NUM_T = (double)theDomain->theParList.Num_T;
-   double NUM_P = (double)theDomain->theParList.Num_P;
-   int j,k;
-   double w0 = 0.0;
-   double w1 = 0.0;
-   for( j=0 ; j<Nt ; ++j ){
-      for( k=0 ; k<Np ; ++k ){
-         int jk = j+Nt*k;
-         w0 += get_vr( theCells[jk][0].prim) /NUM_T/NUM_P;
-         int i;
-         for( i=0 ; i<Nr[jk] ; ++i ){
-            double ww = get_vr( theCells[jk][i].prim);
-            if( w1 < ww ) w1 = ww;
-         }
-      }
-   }
-   MPI_Allreduce( MPI_IN_PLACE , &w0 , 1 , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
-   MPI_Allreduce( MPI_IN_PLACE , &w1 , 1 , MPI_DOUBLE , MPI_MAX , theDomain->theComm );
-   if( w0 < 0. ) w0 = 0.;
-   for( j=0 ; j<Nt ; ++j ){
-      for( k=0 ; k<Np ; ++k ){
-         int jk = j+Nt*k;
-         theCells[jk][0].wiph        = 0.0;//MOVE_W0*w0;
-         //double rp = theCells[jk][Nr[jk]-1].riph;
-         //double dr = theCells[jk][Nr[jk]-1].dr;
-         theCells[jk][Nr[jk]-1].wiph = 0.0;//MOVE_W1*w1;
-         theCells[jk][Nr[jk]-2].wiph = 0.0;//MOVE_W1*w1;// *(1.-dr/rp);
-      }
-   }
 
-}
-*/
 void initial( double * , double * );
 void clear_cell( struct cell * );
 
@@ -306,6 +269,8 @@ void move_BCs( struct domain * theDomain , double dt ){
             c0->riph = rmin_new;
             Nr[jk] -= lostzones;
             theCells[jk] = (struct cell *) realloc( theCells[jk] , Nr[jk]*sizeof(struct cell) );
+            c0 = theCells[jk]+0;
+            c1 = theCells[jk]+1;
 
             xm[0] = 0.0;
             xp[0] = rmin_new;
@@ -574,7 +539,7 @@ void longandshort( struct domain * theDomain , double * L , double * S , int * i
    *L = 0.0; 
    *S = 0.0; 
    int i;
-   for( i=1 ; i<Nr[jk]-1 ; ++i ){
+   for( i=1 ; i<Nr[jk] ; ++i ){
       struct cell * c = sweep+i;
       //double * prim = c->prim;
       //double w = c->wiph;
@@ -614,7 +579,7 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       //Possibly shift iS backwards by 1
       double drL = sweep[iS-1].dr;
       double drR = sweep[iS+1].dr;
-      if( drL < drR && iS!=1 ) --iS;
+      if( (drL < drR && iS!=1) ) --iS;
 
       //Remove Zone at iS+1
       sweep[iS].dr += sweep[iS+1].dr;

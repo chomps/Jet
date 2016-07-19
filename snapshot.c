@@ -38,9 +38,11 @@ void snapshot( struct domain * theDomain , char * filestart ){
    int i,j,k,q;
    double cons_1d_avg[NUM_R*NUM_Q];
    double prim_1d_avg[NUM_R*NUM_Q];
+   double rho2_avg[NUM_R];
    for( i=0 ; i<NUM_R*NUM_Q ; ++i ){
       cons_1d_avg[i] = 0.0;
       prim_1d_avg[i] = 0.0;
+      if( i<NUM_R ) rho2_avg[i] = 0.0;
    }
 
    for( j=j_min ; j<j_max ; ++j ){
@@ -85,6 +87,7 @@ void snapshot( struct domain * theDomain , char * filestart ){
                   cons_1d_avg[i2*NUM_Q + q] += frac*c->cons[q];
                   prim_1d_avg[i2*NUM_Q + q] += frac*c->prim[q]*dV;
                }
+               rho2_avg[i2] += frac*c->prim[RHO]*c->prim[RHO]*dV;
             }
          }
       }
@@ -92,6 +95,7 @@ void snapshot( struct domain * theDomain , char * filestart ){
 
    MPI_Allreduce( MPI_IN_PLACE , cons_1d_avg , NUM_R*NUM_Q , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
    MPI_Allreduce( MPI_IN_PLACE , prim_1d_avg , NUM_R*NUM_Q , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
+   MPI_Allreduce( MPI_IN_PLACE , rho2_avg    , NUM_R       , MPI_DOUBLE , MPI_SUM , theDomain->theComm );
 
    double THETA_MIN = theDomain->theParList.thmin;
    double THETA_MAX = theDomain->theParList.thmax;
@@ -125,6 +129,7 @@ void snapshot( struct domain * theDomain , char * filestart ){
             fprintf(pFile_1d,"%e ",P_out[q]);
             fprintf(pFile_1d,"%e ",prim_1d_avg[i*NUM_Q+q]/dV);
          }
+         fprintf(pFile_1d,"%e ",rho2_avg[i]/dV);
          fprintf(pFile_1d,"\n");
       }
       fclose( pFile_1d );

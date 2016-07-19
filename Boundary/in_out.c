@@ -1,17 +1,17 @@
 
 #include "../paul.h"
 
-void initial( double * , double * );
-void prim2cons( double * , double * , double , double );
 double get_dV( double * , double * ); 
+void prim2cons( double * , double * , double , double );
+void initial( double * , double * );
 
 void boundary_r( struct domain * theDomain ){
    int Nt = theDomain->Nt;
    int Np = theDomain->Np;
    int * Nr = theDomain->Nr;
-   struct cell ** theCells = theDomain->theCells;
    double * t_jph = theDomain->t_jph;
    double * p_kph = theDomain->p_kph;
+   struct cell ** theCells = theDomain->theCells;
  
    int j,k;
    for( j=0 ; j<Nt ; ++j ){
@@ -20,27 +20,27 @@ void boundary_r( struct domain * theDomain ){
       for( k=0 ; k<Np ; ++k ){
          double pp = p_kph[k];
          double pm = p_kph[k-1];
-
          int jk = j+Nt*k;
-//         struct cell * c1 = &(theCells[jk][0]);
+         struct cell * c1 = &(theCells[jk][0]);
          struct cell * c2    = &(theCells[jk][Nr[jk]-1]);
-//         struct cell * c1_c = &(theCells[jk][1]);
          struct cell * c2_c  = &(theCells[jk][Nr[jk]-2]);
+
+         double r1 = c1->riph;
+         double x[3] = {r1,.5*(tp+tm),.5*(pp+pm)};
+         double xp[3] = {r1, tp , pp};
+         double xm[3] = {0.0,tm,pm};
+         double dV = get_dV( xp , xm );
+         initial( c1->prim , x ); 
+         prim2cons( c1->prim , c1->cons , r1 , dV );
          int q;
          for( q=0 ; q<NUM_Q ; ++q ){
-//            c1->prim[q] = c1_c->prim[q];
+            c1->RKcons[q] = c1->cons[q];
             c2->prim[q] = c2_c->prim[q];
          }
-         double rp = c2->riph;
-         double rm = rp - c2->dr;
-         double xp[3] = {rp,tp,pp};
-         double xm[3] = {rm,tm,pm};
-         double dV = get_dV(xp,xm);
-         double r = .5*(rp+rm);
-         prim2cons( c2->prim , c2->cons , r , dV );
       }    
    }
 }
+
 
 void boundary_trans( struct domain * theDomain , struct face * theFaces , int * nn , int dim ){
 

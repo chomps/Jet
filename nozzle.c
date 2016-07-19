@@ -39,16 +39,14 @@ void noz_src( double * cons , double dVdt , double r , double theta , double t ,
    //cons[SS2] += SS*dVdt*sin(theta)*(-r);
    cons[TAU] += (SE-SM)*dVdt;
 
-   if(NUM_N>0){
-      cons[NUM_C] += SM*dVdt;
-   }
-*/
-/*
    int q;
    for( q=NUM_C ; q<NUM_C+NUM_N ; ++q ){
       cons[q] += SM*dVdt;
    }
+
 */
+
+
 
    double r0 = 3.*r_min;
    double Vol = 4./3.*M_PI*pow(r0,3.);
@@ -58,6 +56,11 @@ void noz_src( double * cons , double dVdt , double r , double theta , double t ,
    cons[TAU] += Q*dVdt;
    cons[SS1] += 2.*Q/v_wind*dVdt;
    cons[DEN] += 2.*Q/v_wind/v_wind*dVdt;
+   int q;
+   for( q=NUM_C ; q<NUM_C+NUM_N ; ++q ){
+      cons[q] += 2.*Q/v_wind/v_wind*dVdt;
+   }
+
 
 /*
    double R = 0.05;

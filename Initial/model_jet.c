@@ -1,20 +1,21 @@
 
 #include "../paul.h"
 
-#define GAM_EXP   2.0
-#define GAM_BOOST 3.0
-
-static double T_MIN = 0.0; 
+static double T_MIN     = 0.0; 
+static double GAM_EXP   = 4.5;
+static double GAM_BOOST = 6.0;
 
 void setICparams( struct domain * theDomain ){
-   T_MIN = theDomain->theParList.t_min;
+   T_MIN    = theDomain->theParList.t_min;
+   GAM_EXP   = theDomain->theParList.Gam_0;
+   GAM_BOOST = theDomain->theParList.Gam_Boost;
 }
  
 double shell( double x , double z , double t , double Gam , double G_boost , int * in ){
 
    double r = sqrt( x*x + z*z );
 
-   double E   = 1.0/Gam/G_boost/G_boost; 
+   double E   = 2.0/Gam/G_boost; 
    double rho0 = 1.0; 
    double r_Sedov = pow(E/rho0,1./3.);
 
@@ -52,6 +53,8 @@ void initial( double * prim , double * x ){
    int inside;
    boost( G_boost , r*cos(th) , t , &zz , &tt );
    double rho = shell( r*sin(th) , zz , tt , G_int , G_boost , &inside );
+
+   if( !inside ) rho = pow(r,-2.);
 
    double ur  = 0.0;
    double X   = 0.0;

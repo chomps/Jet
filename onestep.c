@@ -25,6 +25,7 @@ void exchangeData( struct domain * , int );
 void gravity_setup( struct domain * );
 void gravity_addsrc( struct domain * , double );
 void nozzle( struct domain * , double );
+void add_cooling( struct domain * , double );
 void make_nickel( struct domain * );
 
 int get_num_tpFaces( int , int , int );
@@ -38,6 +39,8 @@ void onestep( struct domain * theDomain , double RK , double dt , int last_step 
    if( MOVE_CELLS == C_WCELL ) set_wcell( theDomain );
    //set_w0( theDomain );
    int grav_switch = theDomain->theParList.Gravity_Switch;
+   int add_cool    = theDomain->theParList.Add_Cooling;
+   int make_nick   = theDomain->theParList.Make_Nickel;
    int nozzle_switch = theDomain->theParList.Nozzle_Switch;
    if( grav_switch ) gravity_setup( theDomain );
    adjust_RK_cons( theDomain , RK );
@@ -62,7 +65,8 @@ void onestep( struct domain * theDomain , double RK , double dt , int last_step 
    add_source( theDomain , dt );
    if( grav_switch ) gravity_addsrc( theDomain , dt );
    if( nozzle_switch ) nozzle( theDomain , dt );
-   if( 1 ) make_nickel( theDomain );
+   if( add_cool ) add_cooling( theDomain , dt );
+   if( make_nick ) make_nickel( theDomain );
    move_cells( theDomain , RK , dt );
    calc_dr( theDomain );
    calc_prim( theDomain );

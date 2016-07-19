@@ -22,7 +22,7 @@ FLAGS = -O3 -Wall -g
 INC = -I$(H55)/include
 LIB = -L$(H55)/lib -lm -lhdf5
 
-OBJ = main.o readpar.o onestep.o exchange.o plm.o domain.o faces.o nozzle.o gravity.o misc.o mpisetup.o gridsetup.o $(RIEMANN).o $(TIMESTEP).o $(INITIAL).o $(HYDRO).o $(GEOMETRY).o $(BOUNDARY).o $(OUTPUT).o snapshot.o report.o $(RESTART).o
+OBJ = main.o readpar.o onestep.o exchange.o plm.o domain.o faces.o cooling.o nozzle.o gravity.o misc.o mpisetup.o gridsetup.o $(RIEMANN).o $(TIMESTEP).o $(INITIAL).o $(HYDRO).o $(GEOMETRY).o $(BOUNDARY).o $(OUTPUT).o snapshot.o report.o $(RESTART).o
 
 default: jet
 

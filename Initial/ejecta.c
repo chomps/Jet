@@ -30,14 +30,19 @@ void initial( double * prim , double * x ){
    if( r>R ) rho_ej = rho_T*pow(r/R,-n);
 
    double rho = rho_ej;
-   double Pp = 1e-10*rho*vt2;
+   double Pp = 1e-5*rho*vt2;
    double v = r/t;
-//   if( r>2.*R ) v *= exp(-pow((r-2.*R)/2./R,4.));
 
    prim[RHO] = rho;
    prim[PPP] = Pp;
    prim[UU1] = v;
    prim[UU2] = 0.0;
+
+   int q;
+   for( q=NUM_C ; q<NUM_Q ; ++q ){
+      prim[q] = 0.0;
+   }
+   if( NUM_N>0 && r<R ) prim[NUM_C] = 1.0;
 
 }
 
