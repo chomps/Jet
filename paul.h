@@ -1,5 +1,5 @@
-enum{RHO,PPP,UU1,UU2};
-enum{DEN,TAU,SS1,SS2};
+enum{RHO,PPP,UU1,UU2,UU3};
+enum{DEN,TAU,SS1,SS2,SS3};
 enum{C_FIXED,C_WRIEMANN,C_WCELL};
 
 #include <mpi.h>
@@ -11,7 +11,7 @@ enum{C_FIXED,C_WRIEMANN,C_WCELL};
 #define MOVE_CELLS C_WCELL
 
 #define NUM_C 4
-#define NUM_N 1
+#define NUM_N 2
 #define NUM_Q (NUM_C+NUM_N)
 #define NUM_G 2
 

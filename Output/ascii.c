@@ -2,8 +2,8 @@
 #include "../paul.h"
 
 double get_dV( double * , double * );
-void prim2cons( double * , double * , double , double );
-void cons2prim( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
+void cons2prim( double * , double * , double , double , double );
 
 void output( struct domain * theDomain , char * filestart ){
    struct cell ** theCells = theDomain->theCells;
@@ -144,7 +144,7 @@ if( i==0 ) fprintf(pFile,"# ");
          double xm[3] = {rm,THETA_MIN,0.0};
          double r = (2./3.)*(rp*rp*rp-rm*rm*rm)/(rp*rp-rm*rm);
          double dV = get_dV( xp , xm );
-         cons2prim( &(cons_1d_avg[i*NUM_Q]) , P_out , r , dV );
+         cons2prim( &(cons_1d_avg[i*NUM_Q]) , P_out , r , .5*(xp[1]+xm[1]) , dV );
          fprintf(pFile_1d,"%e ",r);
          for( q=0 ; q<NUM_Q ; ++q ){
             fprintf(pFile_1d,"%e ",P_out[q]);

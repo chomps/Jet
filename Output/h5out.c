@@ -84,8 +84,8 @@ int Cell2Doub( struct cell * c , double * Q , int mode ){
 }
 
 double get_dV( double * , double * );
-void prim2cons( double * , double * , double , double );
-void cons2prim( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
+void cons2prim( double * , double * , double , double , double );
 void reset_entropy( struct domain * );
 
 void output( struct domain * theDomain , char * filestart ){
@@ -113,10 +113,15 @@ void output( struct domain * theDomain , char * filestart ){
    if( dim_rank[0] != 0 ) jmin = Ng;
    int jmax = Nt;
    if( dim_rank[0] != dim_size[0]-1 ) jmax = Nt-Ng;
+/*
    int kmin = 0;
-   if( dim_rank[1] != 0 ) kmin = Ng;
    int kmax = Np;
+   if( dim_rank[1] != 0 ) kmin = Ng;
    if( dim_rank[1] != dim_size[1]-1 ) kmax = Np-Ng;
+*/
+   int kmin = Ng;
+   int kmax = Np-Ng;
+   if( Np == 1 ){ kmin = 0 ; kmax = 1; }
 
    int Ntot = 0;
    int j,k;
@@ -166,6 +171,7 @@ void output( struct domain * theDomain , char * filestart ){
    int jSum = 0;
    int k0 = 0;
    int kSum = 0;
+/*
    for( nrk=0 ; nrk < size ; ++nrk ){
       if( nrk == rank ){
          j0 = jSum;
@@ -176,6 +182,22 @@ void output( struct domain * theDomain , char * filestart ){
       MPI_Allreduce( MPI_IN_PLACE , &jSum , 1 , MPI_INT , MPI_SUM , theDomain->theComm );
       MPI_Allreduce( MPI_IN_PLACE , &kSum , 1 , MPI_INT , MPI_SUM , theDomain->theComm );
    }
+*/
+   for( nrk=0 ; nrk < dim_size[0] ; ++nrk ){
+      if( nrk == dim_rank[0] ){
+         j0 = jSum;
+         if( dim_rank[1] == 0 ) jSum += jmax-jmin; else jSum = 0;
+      }else{jSum=0;}
+      MPI_Allreduce( MPI_IN_PLACE , &jSum , 1 , MPI_INT , MPI_SUM , theDomain->theComm );
+   }
+   for( nrk=0 ; nrk < dim_size[1] ; ++nrk ){
+      if( nrk == dim_rank[1] ){
+         k0 = kSum;
+         if( dim_rank[0] == 0 ) kSum += kmax-kmin; else kSum = 0; 
+      }else{kSum=0;}
+      MPI_Allreduce( MPI_IN_PLACE , &kSum , 1 , MPI_INT , MPI_SUM , theDomain->theComm );
+   }
+//printf("rank=%d,j0=%d,jSum=%d, k0=%d,kSum=%d\n",rank,j0,jSum,k0,kSum);
    if( Nt_Tot == 1 ){ j0 = 0; jSum = 1; }
    if( Np_Tot == 1 ){ k0 = 0; kSum = 1; }
    int myIndex=0;
@@ -189,7 +211,8 @@ void output( struct domain * theDomain , char * filestart ){
       int index = 0;
       for( k=kmin ; k<kmax ; ++k ){
          for( j=jmin ; j<jmax ; ++j ){
-            int jk = (j-jmin) + Nt*(k-kmin);
+            //int jk = (j-jmin) + jSize*(k-kmin);
+            int jk = (j-jmin)*kSize + (k-kmin);
             Index[jk] = index + myIndex;
             Size[jk]  = Nr[j+Nt*k];
             int i;

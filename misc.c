@@ -38,14 +38,21 @@ double getmindt( struct domain * theDomain ){
 }
 
 void initial( double * , double * );
-void prim2cons( double * , double * , double , double );
-void cons2prim( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
+void cons2prim( double * , double * , double , double , double );
 void restart( struct domain * );
+void exchangeData( struct domain * , int );
 
 void setupcells( struct domain * theDomain ){
 
    int restart_flag = theDomain->theParList.restart_flag;
-   if( restart_flag ) restart( theDomain );
+   if( restart_flag ){
+      restart( theDomain );
+if( theDomain->rank==0 ){ printf("Find the segfault 1...\n"); sleep(1); }
+      if( theDomain->Np > 1 ) exchangeData( theDomain , 1 );
+      if( theDomain->Nt > 1 ) exchangeData( theDomain , 0 );
+if( theDomain->rank==0 ){ printf("Find the segfault 2...\n"); sleep(1); }
+   }
 
    int i,j,k;
    struct cell ** theCells = theDomain->theCells;
@@ -74,7 +81,7 @@ void setupcells( struct domain * theDomain ){
                int icN = theDomain->theParList.Initial_Cons;
                if( !icN ){ 
                   initial( c->prim , x );
-                  prim2cons( c->prim , c->cons , r , dV );
+                  prim2cons( c->prim , c->cons , r , x[1] , dV );
                }else{
                   double consTot[NUM_Q];
                   int q;
@@ -89,15 +96,15 @@ void setupcells( struct domain * theDomain ){
                      double xmn[3] = {rmn,t_jph[j-1],p_kph[k-1]};
                      double dVn = get_dV( xpn , xmn );
                      initial( c->prim , xn );
-                     prim2cons( c->prim , c->cons , rn , dVn );
+                     prim2cons( c->prim , c->cons , rn , xn[1] , dVn );
                      for( q=0 ; q<NUM_Q ; ++q ) consTot[q] += c->cons[q];
                   }
                   for( q=0 ; q<NUM_Q ; ++q ) c->cons[q] = consTot[q];
                }
             }else{
-               prim2cons( c->prim , c->cons , r , dV );
+               prim2cons( c->prim , c->cons , r , x[1] , dV );
             }
-            cons2prim( c->cons , c->prim , r , dV );
+            cons2prim( c->cons , c->prim , r , x[1] , dV );
          }
       }
    }
@@ -155,7 +162,7 @@ void move_BCs( struct domain * theDomain , double dt ){
    double * p_kph = theDomain->p_kph;
    double ShockPos = theDomain->theParList.ShockPos;
 
-   double r_outer = theCells[0][Nr[0]-1].riph + theCells[0][Nr[0]-1].dr;
+//   double r_outer = theCells[0][Nr[0]-1].riph + theCells[0][Nr[0]-1].dr;
 
    double max_vel = 0.0;
    int i,j,k; 
@@ -170,7 +177,7 @@ void move_BCs( struct domain * theDomain , double dt ){
    }
 
    double w1   = 0.0; 
-   double w2   = 0.0; 
+//   double w2   = 0.0; 
    double r1   = 0.0;
    for( j=0 ; j<Nt ; ++j ){
       for( k=0 ; k<Np ; ++k ){
@@ -178,7 +185,7 @@ void move_BCs( struct domain * theDomain , double dt ){
          for( i=1 ; i<Nr[jk]-1 ; ++i ){
             double ww = get_vr( theCells[jk][i].prim);
             double rr = theCells[jk][i].riph - theCells[jk][i].dr;
-            double crash_rate = ww/(r_outer-rr);
+            //double crash_rate = ww/(r_outer-rr);
             //if( w1 < ww ) w1 = ww;
             //if( w2 < crash_rate ){ w2=crash_rate; r1 = rr; }
             if( ww > .01*max_vel && r1<rr ){ w1 = ww; r1 = rr; }
@@ -198,16 +205,16 @@ void move_BCs( struct domain * theDomain , double dt ){
    double rmax = theCells[0][Nr[0]-1].riph;
    double rhalf = ShockPos*rmax + (1.-ShockPos)*rmin;
    w1 *= ( 1. + log(r1/rhalf)/log(rmax/rhalf) );
-
+/*
    w1 = 1.0;
    r1 = w1*theDomain->t;
-
+*/
    if( w1 > 0.0 ){
   
       double w_out = w1*(rmax/r1);
       double w_in  = w1*(rmin/r1);
 //This shit should not be hard-coded.  Fix this when you fix that Nickel crap. 
-//      if( w_in > 1e-3 ) w_in = 1e-3;
+      if( w_in > 1e-3 ) w_in = 1e-3;
 
       double rmin_new = rmin + w_in*dt;
       double rmax_new = rmax + w_out*dt;
@@ -276,7 +283,7 @@ void move_BCs( struct domain * theDomain , double dt ){
             xp[0] = rmin_new;
             double rl = (2./3.)*rmin_new;
             dVl = get_dV(xp,xm);
-            cons2prim( c0->cons , c0->prim , rl , dVl );
+            cons2prim( c0->cons , c0->prim , rl , .5*(xp[1]+xm[1]) , dVl );
 
             xm[0] = rmin_new;
             xp[0] = c1->riph;
@@ -284,7 +291,7 @@ void move_BCs( struct domain * theDomain , double dt ){
             rm = xm[0];
             double rr = (2./3.)*(rp*rp*rp-rm*rm*rm)/(rp*rp-rm*rm);
             dVr = get_dV(xp,xm);
-            cons2prim( c1->cons , c1->prim , rr , dVr );
+            cons2prim( c1->cons , c1->prim , rr , .5*(xp[1]+xm[1]) , dVr );
             c1->dr = rp-rm;
 
       //add zones to the outside.
@@ -315,7 +322,7 @@ void move_BCs( struct domain * theDomain , double dt ){
                initial( c->prim , x ); 
                double dV = get_dV(xp,xm);
                double rr = (2./3.)*(rp*rp*rp-rm*rm*rm)/(rp*rp-rm*rm);
-               prim2cons( c->prim , c->cons , rr , dV );
+               prim2cons( c->prim , c->cons , rr , .5*(xp[1]+xm[1]) , dV );
             }
          } 
       }
@@ -364,7 +371,7 @@ void regrid( struct domain * theDomain ){
                cnew->dr = rlp-rlm;
                double dV = get_dV(xp,xm);
                double rr = (2./3.)*(rlp*rlp*rlp-rlm*rlm*rlm)/(rlp*rlp-rlm*rlm);
-               prim2cons( cnew->prim , cnew->cons , rr , dV );
+               prim2cons( cnew->prim , cnew->cons , rr , x[1] , dV );
             }
             i += Nsplit;
          }
@@ -444,14 +451,14 @@ void calc_prim( struct domain * theDomain ){
             double xp[3] = {rp,t_jph[j]  ,p_kph[k]  };
             double xm[3] = {rm,t_jph[j-1],p_kph[k-1]};
             double dV = get_dV( xp , xm );
-            cons2prim( c->cons , c->prim , r , dV );
+            cons2prim( c->cons , c->prim , r , .5*(xp[1]+xm[1]) , dV );
          }
       }
    }
 }
 
 void plm_r( struct domain * );
-void riemann_r( struct cell * , struct cell * , double , double );
+void riemann_r( struct cell * , struct cell * , double , double , double );
 
 void radial_flux( struct domain * theDomain , double dt ){
    struct cell ** theCells = theDomain->theCells;
@@ -470,7 +477,7 @@ void radial_flux( struct domain * theDomain , double dt ){
             double xp[3] = {rp,t_jph[j]  ,p_kph[k]  };
             double xm[3] = {rp,t_jph[j-1],p_kph[k-1]};
             double dA = get_dA(xp,xm,0); 
-            riemann_r( &(cp[i]) , &(cp[i+1]) , cp[i].riph , dA*dt );
+            riemann_r( &(cp[i]) , &(cp[i+1]) , cp[i].riph , .5*(xp[1]+xm[1]) , dA*dt );
          }
       }
    }
@@ -596,7 +603,7 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       double xp[3] = {rp,t_jph[j]  ,p_kph[k]  };
       double xm[3] = {rm,t_jph[j-1],p_kph[k-1]};
       double dV = get_dV( xp , xm );
-      cons2prim( sweep[iS].cons , sweep[iS].prim , r , dV );
+      cons2prim( sweep[iS].cons , sweep[iS].prim , r , .5*(xp[1]+xm[1]) , dV );
       //Shift Memory
       int blocksize = Nr[jk]-iS-2;
       memmove( sweep+iS+1 , sweep+iS+2 , blocksize*sizeof(struct cell) );
@@ -637,7 +644,7 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       double xp[3] = {rp,t_jph[j]  ,p_kph[k]  };
       double xm[3] = {rm,t_jph[j-1],p_kph[k-1]};
       double dV = get_dV( xp , xm );
-      cons2prim( sweep[iL].cons , sweep[iL].prim , r , dV );
+      cons2prim( sweep[iL].cons , sweep[iL].prim , r , .5*(xp[1]+xm[1]) , dV );
 
       rm = sweep[iL].riph;
       rp = sweep[iL+1].riph;
@@ -645,7 +652,7 @@ void AMRsweep( struct domain * theDomain , struct cell ** swptr , int j , int k 
       xp[0] = rp;
       xm[0] = rm;
       dV = get_dV( xp , xm );
-      cons2prim( sweep[iL+1].cons , sweep[iL+1].prim , r , dV );
+      cons2prim( sweep[iL+1].cons , sweep[iL+1].prim , r , .5*(xp[1]+xm[1]) , dV );
 
    }
 

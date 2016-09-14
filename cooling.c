@@ -14,7 +14,7 @@ void setCoolingParams( struct domain * theDomain ){
 void cool_src( double * prim , double * cons , double dVdt ){
 
    double T0 = 3e-3; //1e5 K
-   double Tmin = 0.1*T0;
+   double Tmin = 0.05*T0;
 
    double Q = 0.0;
    double Pp  = prim[PPP];
@@ -22,7 +22,7 @@ void cool_src( double * prim , double * cons , double dVdt ){
 
    double T = Pp/rho;
    if( T > Tmin ){
-      Q = -10.0*rho*rho*(T-Tmin)/T0*pow(T/T0,-1.7);
+      Q = -5.0*rho*rho*(T-Tmin)/T0*pow(T/T0,-1.7);
    }
 
    cons[TAU] += Q*dVdt;

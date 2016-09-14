@@ -4,7 +4,7 @@
 
 void initial( double * , double * );
 double get_dV( double * , double * );
-void cons2prim( double * , double * , double , double );
+void cons2prim( double * , double * , double , double , double );
 
 void boundary_r( struct domain * theDomain ){
    struct cell ** theCells = theDomain->theCells;
@@ -51,7 +51,7 @@ void boundary_trans( struct domain * theDomain , struct face * theFaces , int * 
    int * dim_rank = theDomain->dim_rank;
    int * dim_size = theDomain->dim_size;
 
-   int copy_left  = 0;
+   int copy_left  = 1;
    int copy_right = 1;
 
    int LRmin = 0; 

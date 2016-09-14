@@ -21,7 +21,7 @@ double get_entropy( double * prim ){
    return( log( prim[PPP] / pow( prim[RHO] , GAMMA_LAW ) ) ); 
 }
 
-void prim2cons( double * prim , double * cons , double r , double dV ){
+void prim2cons( double * prim , double * cons , double r , double th , double dV ){
 
    double rho = prim[RHO];
    double Pp  = prim[PPP];
@@ -59,7 +59,7 @@ void newt_f( double p , double * f , double * df , double D , double S2 , double
 
 }
 
-void cons2prim( double * cons , double * prim , double r , double dV ){
+void cons2prim( double * cons , double * prim , double r , double th , double dV ){
 
    double D   = cons[DEN]/dV;
    double Sr  = cons[SS1]/dV;
@@ -101,7 +101,7 @@ void cons2prim( double * cons , double * prim , double r , double dV ){
 
 }
 
-void getUstar( double * prim , double * Ustar , double r , double Sk , double Ss , double * n ){
+void getUstar( double * prim , double * Ustar , double r , double th , double Sk , double Ss , double * n ){
 
    double rho = prim[RHO];
    double ur  = prim[UU1];
@@ -136,7 +136,7 @@ void getUstar( double * prim , double * Ustar , double r , double Sk , double Ss
 
 }
 
-void flux( double * prim , double * flux , double r , double * n ){
+void flux( double * prim , double * flux , double r , double th , double * n ){
 
    double rho = prim[RHO];
    double Pp  = prim[PPP];
@@ -177,7 +177,7 @@ void source( double * prim , double * cons , double * xp , double * xm , double 
 
 }
 
-void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double * Ss , double * n , double r ){
+void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double * Ss , double * n , double r , double th ){
    
    double gam = GAMMA_LAW;
 

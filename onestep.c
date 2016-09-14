@@ -83,7 +83,7 @@ void onestep( struct domain * theDomain , double RK , double dt , int last_step 
    }
    if( Np > 1 ){
       exchangeData( theDomain , 1 );
-      //boundary_trans( theDomain , theFaces_2 , nfp , 2 );
+//      boundary_trans( theDomain , theFaces_2 , nfp , 2 );
    }
    if( theFaces_1 ) free( theFaces_1 );
    if( theFaces_2 ) free( theFaces_2 );

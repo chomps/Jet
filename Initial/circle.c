@@ -19,7 +19,7 @@ void initial( double * prim , double * x ){
       rho = 1.0;
       Pp  = 1.0;
    }else{
-      rho = 0.125;
+      rho = 0.1;
       Pp  = 0.1;
    }
    prim[RHO] = rho;

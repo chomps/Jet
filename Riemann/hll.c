@@ -1,9 +1,9 @@
 
 #include "../paul.h"
 
-void prim2cons( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
 void flux( double * , double * , double , double * );
-void vel( double * , double * , double * , double * , double * , double * , double );
+void vel( double * , double * , double * , double * , double * , double * , double , double );
 
 void riemann_r( struct cell * cL , struct cell * cR, double r , double dAdt ){
 

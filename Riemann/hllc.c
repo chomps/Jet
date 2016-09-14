@@ -4,12 +4,12 @@
 #include <math.h>
 #include "../paul.h"
  
-void prim2cons( double * , double * , double , double );
-void flux( double * , double * , double , double * );
-void getUstar( double * , double * , double , double , double , double * );
-void vel( double * , double * , double * , double * , double * , double * , double );
+void prim2cons( double * , double * , double , double , double );
+void flux( double * , double * , double , double , double * );
+void getUstar( double * , double * , double , double , double , double , double * );
+void vel( double * , double * , double * , double * , double * , double * , double , double );
  
-void riemann_r( struct cell * cL , struct cell * cR , double r , double dAdt ){
+void riemann_r( struct cell * cL , struct cell * cR , double r , double th , double dAdt ){
 
    double primL[NUM_Q];
    double primR[NUM_Q];
@@ -24,7 +24,7 @@ void riemann_r( struct cell * cL , struct cell * cR , double r , double dAdt ){
    double n[3];
    n[0] = 1.0;   n[1] = 0.0;   n[2] = 0.0;
 
-   vel( primL , primR , &Sl , &Sr , &Ss , n , r );
+   vel( primL , primR , &Sl , &Sr , &Ss , n , r , th );
 
    double Fk[NUM_Q];
    double Uk[NUM_Q];
@@ -35,31 +35,31 @@ void riemann_r( struct cell * cL , struct cell * cR , double r , double dAdt ){
    double w = cL->wiph;
 
    if( w < Sl ){
-      flux( primL , Fk , r , n );
-      prim2cons( primL , Uk , r , 1.0 );
+      flux( primL , Fk , r , th , n );
+      prim2cons( primL , Uk , r , th , 1.0 );
       for( q=0 ; q<NUM_Q ; ++q ){
          Flux[q] = Fk[q] - w*Uk[q];
       }
    }else if( w > Sr ){
-      flux( primR , Fk , r , n );
-      prim2cons( primR , Uk , r , 1.0 );
+      flux( primR , Fk , r , th , n );
+      prim2cons( primR , Uk , r , th , 1.0 );
       for( q=0 ; q<NUM_Q ; ++q ){
          Flux[q] = Fk[q] - w*Uk[q];
       }
    }else{
       double Ustar[NUM_Q];
       if( w < Ss ){
-         prim2cons( primL , Uk , r , 1.0 );
-         getUstar( primL , Ustar , r , Sl , Ss , n );
-         flux( primL , Fk , r , n );
+         prim2cons( primL , Uk , r , th , 1.0 );
+         getUstar( primL , Ustar , r , th , Sl , Ss , n );
+         flux( primL , Fk , r , th , n );
 
          for( q=0 ; q<NUM_Q ; ++q ){
             Flux[q] = Fk[q] + Sl*( Ustar[q] - Uk[q] ) - w*Ustar[q];
          }
       }else{
-         prim2cons( primR , Uk , r , 1.0 );
-         getUstar( primR , Ustar , r , Sr , Ss , n );
-         flux( primR , Fk , r , n );
+         prim2cons( primR , Uk , r , th , 1.0 );
+         getUstar( primR , Ustar , r , th , Sr , Ss , n );
+         flux( primR , Fk , r , th , n );
 
          for( q=0 ; q<NUM_Q ; ++q ){
             Flux[q] = Fk[q] + Sr*( Ustar[q] - Uk[q] ) - w*Ustar[q];
@@ -82,6 +82,7 @@ void riemann_trans( struct face * F , double dt , int dim ){
    double dxL       = F->dxL;
    double dxR       = F->dxR;
    double r         = F->cm[0];
+   double th        = F->cm[1];
 
    double primL[NUM_Q];
    double primR[NUM_Q];
@@ -102,7 +103,7 @@ void riemann_trans( struct face * F , double dt , int dim ){
    double n[3] = {0.0,0.0,0.0};
    n[dim] = 1.0;
  
-   vel( primL , primR , &Sl , &Sr , &Ss , n , r );
+   vel( primL , primR , &Sl , &Sr , &Ss , n , r , th );
 
    double Fk[NUM_Q];
    double Uk[NUM_Q];
@@ -110,23 +111,23 @@ void riemann_trans( struct face * F , double dt , int dim ){
    double Flux[NUM_Q];
 
    if( 0. < Sl ){
-      flux( primL , Flux , r , n );
+      flux( primL , Flux , r , th , n );
    }else if( 0. > Sr ){
-      flux( primR , Flux , r , n );
+      flux( primR , Flux , r , th , n );
    }else{
       double Ustar[NUM_Q];
       if( 0. < Ss ){
-         prim2cons( primL , Uk , r , 1.0 );
-         getUstar( primL , Ustar , r , Sl , Ss , n );
-         flux( primL , Fk , r , n );
+         prim2cons( primL , Uk , r , th , 1.0 );
+         getUstar( primL , Ustar , r , th , Sl , Ss , n );
+         flux( primL , Fk , r , th , n );
 
          for( q=0 ; q<NUM_Q ; ++q ){
             Flux[q] = Fk[q] + Sl*( Ustar[q] - Uk[q] );
          }
       }else{
-         prim2cons( primR , Uk , r , 1.0 );
-         getUstar( primR , Ustar , r , Sr , Ss , n );
-         flux( primR , Fk , r , n );
+         prim2cons( primR , Uk , r , th , 1.0 );
+         getUstar( primR , Ustar , r , th , Sr , Ss , n );
+         flux( primR , Fk , r , th , n );
 
          for( q=0 ; q<NUM_Q ; ++q ){
             Flux[q] = Fk[q] + Sr*( Ustar[q] - Uk[q] );

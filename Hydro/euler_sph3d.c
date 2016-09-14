@@ -23,12 +23,14 @@ void prim2cons( double * prim , double * cons , double r , double th , double dV
    double Pp  = prim[PPP];
    double vr  = prim[UU1];
    double vt  = prim[UU2];
-   double v2 = vr*vr + vt*vt;
+   double vp  = r*sin(th)*prim[UU3];
+   double v2 = vr*vr + vt*vt + vp*vp;
    double gam = GAMMA_LAW;
    double rhoe = Pp/(gam-1.);
    cons[DEN] = rho*dV;
    cons[SS1] = rho*vr*dV;
    cons[SS2] = r*rho*vt*dV;
+   cons[SS3] = r*sin(th)*rho*vp*dV;
    cons[TAU] = (.5*rho*v2 + rhoe)*dV;
 
    int q;
@@ -42,11 +44,14 @@ void cons2prim( double * cons , double * prim , double r , double th , double dV
    double rho = cons[DEN]/dV;
    double Sr  = cons[SS1]/dV;
    double St  = cons[SS2]/dV/r;
+   double Sp  = cons[SS3]/dV/r/sin(th);
    double E   = cons[TAU]/dV;
 
    double vr = Sr/rho;
    double vt = St/rho;
-   double v2 = vr*vr + vt*vt;
+   double vp = Sp/rho;
+   double omega = vp/r/sin(th);
+   double v2 = vr*vr + vt*vt + vp*vp;
    double rhoe = E - .5*rho*v2;
    double gam = GAMMA_LAW;
    double Pp = (gam-1.)*rhoe;
@@ -58,6 +63,7 @@ void cons2prim( double * cons , double * prim , double r , double th , double dV
    prim[PPP] = Pp;
    prim[UU1] = vr;
    prim[UU2] = vt;
+   prim[UU3] = omega;
 
    int q;
    for( q=NUM_C ; q<NUM_C+NUM_N ; ++q ){
@@ -70,10 +76,11 @@ void getUstar( double * prim , double * Ustar , double r , double th , double Sk
    double rho = prim[RHO];
    double vr  = prim[UU1];
    double vt  = prim[UU2];
+   double vp  = r*sin(th)*prim[UU3];
    double Pp  = prim[PPP];
-   double v2  = vr*vr+vt*vt;
+   double v2  = vr*vr+vt*vt+vp*vp;
 
-   double vn = vr*n[0] + vt*n[1];
+   double vn = vr*n[0] + vt*n[1] + vp*n[2];
    double gam = GAMMA_LAW;
 
    double rhoe = Pp/(gam-1.);
@@ -85,6 +92,7 @@ void getUstar( double * prim , double * Ustar , double r , double th , double Sk
    Ustar[DEN] = rhostar;
    Ustar[SS1] = rhostar*( vr + (Ss-vn)*n[0] );
    Ustar[SS2] = r*rhostar*( vt + (Ss-vn)*n[1] );
+   Ustar[SS3] = r*sin(th)*rhostar*( vp + (Ss-vn)*n[2] );
    Ustar[TAU] = .5*rhostar*v2 + Us + rhostar*Ss*(Ss - vn) + Pstar;
 
    int q;
@@ -100,14 +108,16 @@ void flux( double * prim , double * flux , double r , double th , double * n ){
    double Pp  = prim[PPP];
    double vr  = prim[UU1];
    double vt  = prim[UU2];
-   double v2  = vr*vr + vt*vt;
-   double vn  = vr*n[0] + vt*n[1];
+   double vp  = r*sin(th)*prim[UU3];
+   double v2  = vr*vr + vt*vt + vp*vp;
+   double vn  = vr*n[0] + vt*n[1] + vp*n[2];
    double gam = GAMMA_LAW;
    double rhoe = Pp/(gam-1.);
  
    flux[DEN] = rho*vn;
    flux[SS1] = rho*vr*vn + Pp*n[0];
    flux[SS2] = r*( rho*vt*vn + Pp*n[1] );
+   flux[SS3] = r*sin(th)*( rho*vp*vn + Pp*n[2] );
    flux[TAU] = (.5*rho*v2 + rhoe + Pp)*vn;
 
    int q;
@@ -124,9 +134,10 @@ void source( double * prim , double * cons , double * xp , double * xm , double 
    double r  = .5*(rp+rm);
    double th = .5*(xp[1]+xm[1]);
    double vt  = prim[UU2];
+   double vp = r*sin(th)*prim[UU3];
    double r2 = (rp*rp+rm*rm+rp*rm)/3.;
-   cons[SS1] += (2.*Pp + rho*vt*vt)*(r/r2)*dVdt;
-   cons[SS2] += Pp*(cos(th)/sin(th))*dVdt;//*(r*r/r2);
+   cons[SS1] += (2.*Pp + rho*vt*vt + rho*vp*vp )*(r/r2)*dVdt;
+   cons[SS2] += (Pp + rho*vp*vp)*(cos(th)/sin(th))*dVdt; // + rho*vp*vp*cos(th)*dVdt;//*(r*r/r2);
 }
 
 void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double * Ss , double * n , double r , double th ){
@@ -137,7 +148,8 @@ void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double *
    double rho1 = prim1[RHO];
    double vr1  = prim1[UU1];
    double vt1  = prim1[UU2];
-   double vn1  = vr1*n[0]+vt1*n[1];
+   double vp1  = prim1[UU3]*r*sin(th);
+   double vn1  = vr1*n[0]+vt1*n[1]+vp1*n[2];
 
    double cs1 = sqrt(fabs(gam*P1/rho1));
 
@@ -145,7 +157,8 @@ void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double *
    double rho2 = prim2[RHO];
    double vr2  = prim2[UU1];
    double vt2  = prim2[UU2];
-   double vn2  = vr2*n[0]+vt2*n[1];
+   double vp2  = prim2[UU3]*r*sin(th);
+   double vn2  = vr2*n[0]+vt2*n[1]+vp2*n[2];
 
    double cs2 = sqrt(fabs(gam*P2/rho2));
 
@@ -167,16 +180,21 @@ double mindt( double * prim , double w , double * xp , double * xm ){
    double Pp  = prim[PPP];
    double vr  = prim[UU1];
    double vt  = prim[UU2];//*.5*(xp[0]+xm[0]);
+   double omega = prim[UU3];
+   double vp = .5*(xp[0]+xm[0])*cos(.5*(xp[1]+xm[1]))*omega;
    double gam = GAMMA_LAW;
 
    double cs = sqrt(fabs(gam*Pp/rho));
 
    double maxvr = cs + fabs( vr - w );
    double maxvt = cs + fabs( vt );
+   double maxvp = cs + fabs( vp );
    double dtr = get_dL(xp,xm,0)/maxvr;
    double dtt = get_dL(xp,xm,1)/maxvt;
+   double dtp = get_dL(xp,xm,2)/maxvp;
    double dt = dtr;
    if( dt > dtt ) dt = dtt;
+   if( dt > dtp ) dt = dtp;
 
    return( dt );
 

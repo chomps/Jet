@@ -2,16 +2,23 @@
 #include "../paul.h"
 
 double get_dV( double * , double * ); 
-void prim2cons( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
 void initial( double * , double * );
 
 void boundary_r( struct domain * theDomain ){
+
    int Nt = theDomain->Nt;
    int Np = theDomain->Np;
    int * Nr = theDomain->Nr;
    double * t_jph = theDomain->t_jph;
    double * p_kph = theDomain->p_kph;
    struct cell ** theCells = theDomain->theCells;
+
+   double t = theDomain->t;
+   double vw = 1.0;
+
+   double Amp = theDomain->theParList.Explosion_Energy;
+   double wavenumber = theDomain->theParList.Gam_0;
  
    int j,k;
    for( j=0 ; j<Nt ; ++j ){
@@ -30,7 +37,14 @@ void boundary_r( struct domain * theDomain ){
          double xp[3] = {r1, tp , pp};
          double xm[3] = {0.0,tm,pm};
          double dV = get_dV( xp , xm );
-         initial( c1->prim , x ); 
+         initial( c1->prim , x );
+
+double phase1 = .5*(tp+tm);
+double phase2 = vw*t/r1;
+double k_p = wavenumber;
+c1->prim[RHO] *= 1. + Amp*sin(2.5*k_p*phase1)*sin(k_p*phase2);
+c1->prim[RHO] *= 1. + 0.*.5*2.*((double)rand()/(double)RAND_MAX-.5);
+ 
          prim2cons( c1->prim , c1->cons , r1 , dV );
          int q;
          for( q=0 ; q<NUM_Q ; ++q ){

@@ -77,7 +77,7 @@ void generate_sendbuffer( struct domain * theDomain , int tnum , int pnum , int 
             struct cell * c = &(theCells[jk][i]);
             if( mode==1 ){
                copy_cell_to_lite( c , pl+iL );
-            }else if( mode==2 && dim_rank[dim] != 0 ){
+            }else if( mode==2 && ( dim_rank[dim] != 0 || dim==1 ) ){
                copy_lite_to_cell( pl+iL , c );
             }
             ++iL;
@@ -90,7 +90,7 @@ void generate_sendbuffer( struct domain * theDomain , int tnum , int pnum , int 
             struct cell * c = &(theCells[jk][i]);
             if( mode==1 ){
                copy_cell_to_lite( c , pr+iR );
-            }else if( mode==2 && dim_rank[dim] != dim_size[dim]-1 ){
+            }else if( mode==2 && ( dim_rank[dim] != dim_size[dim]-1 || dim==1 ) ){
                copy_lite_to_cell( pr+iR , c );
             }
             ++iR;

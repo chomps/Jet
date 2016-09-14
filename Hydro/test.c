@@ -6,8 +6,8 @@ double get_dL( double * a , double * b , double * c ){
    return(0.);
 }
 
-void prim2cons( double * , double * , double , double );
-void cons2prim( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
+void cons2prim( double * , double * , double , double , double );
 
 int main(void){
 

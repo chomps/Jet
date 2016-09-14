@@ -41,14 +41,15 @@ int main( int argc , char * argv[] ){
    setupcells( &theDomain );
 
    if( theDomain.theParList.Initial_Regrid && !(theDomain.theParList.restart_flag) ) regrid( &theDomain );
+
    if( theDomain.Nt > 1 ) exchangeData( &theDomain , 0 );
    if( theDomain.Np > 1 ) exchangeData( &theDomain , 1 );
 
    if( theDomain.rank==0 && !(theDomain.theParList.restart_flag) ){
       FILE * rFile = fopen("report.dat","w");
       fclose(rFile);
-   }
-
+   } 
+ 
    while( !(theDomain.final_step) ){
 
       double dt = getmindt( &theDomain );

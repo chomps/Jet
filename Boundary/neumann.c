@@ -2,7 +2,7 @@
 #include "../paul.h"
 
 void initial( double * , double * );
-void prim2cons( double * , double * , double , double );
+void prim2cons( double * , double * , double , double , double );
 double get_dV( double * , double * ); 
 
 void boundary_r( struct domain * theDomain ){
