@@ -3,5 +3,6 @@ jet
 *.o
 *.dat
 *.h5
+*.log
 abort
 
