@@ -30,6 +30,7 @@ void boundary_r( struct domain * theDomain ){
             struct cell * c4 = &(theCells[jk][0]);
             for( q=0 ; q<NUM_Q ; ++q ){
                c4->prim[q] = c3->prim[q];
+               if( c4->prim[UU1] > 0.0 ) c4->prim[UU1] = 0.0;
             }
          }
       }    
@@ -51,8 +52,8 @@ void boundary_trans( struct domain * theDomain , struct face * theFaces , int * 
    int * dim_rank = theDomain->dim_rank;
    int * dim_size = theDomain->dim_size;
 
-   int copy_left  = 1;
-   int copy_right = 1;
+   int copy_left  = 0;
+   int copy_right = 0;
 
    int LRmin = 0; 
    int LRmax = 2;

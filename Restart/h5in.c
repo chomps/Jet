@@ -119,7 +119,8 @@ void restart( struct domain * theDomain ){
    theDomain->theParList.Num_T = NUM_T;
    theDomain->theParList.Num_P = NUM_P;
    theDomain->t = tstart;
-  
+ 
+ 
    //The following is very similar to equivalent code in gridsetup.c
    //Now you're just doing the process over because you're restarting
    //from file. 
@@ -133,7 +134,7 @@ void restart( struct domain * theDomain ){
 
    if( dim_rank[0] != 0 ){ Nt += Ng; N0t -= Ng;}
    if( dim_rank[0] != dim_size[0]-1 ) Nt += Ng;
-   if( NUM_P != 1 ){ Np += 2*Ng; N0p -= Ng; }
+   if( NUM_P != 1 ){ Np += 2*Ng; }//N0p -= Ng; }
 
    theDomain->Nt = Nt;
    theDomain->Np = Np;
@@ -146,7 +147,6 @@ void restart( struct domain * theDomain ){
 
    struct cell ** theCells = theDomain->theCells;
 
-   int Index[Np*Nt];
 
    //The following must happen in serial because different processors
    //will try to read from the same file.  In principle we can write
@@ -165,13 +165,21 @@ void restart( struct domain * theDomain ){
       readPatch( filename , group1 ,"t_jph", t_jph , H5T_NATIVE_DOUBLE , 1 , start1 , loc_size1 , glo_size1 ); 
       for( j=0 ; j<Nt+1 ; ++j ) theDomain->t_jph[j] = t_jph[j];
 
+int kmin = 0;
+int kmax = Np;
+if( Np>1 ){ kmin = Ng ; kmax = Np-Ng; }
+int Np_read = kmax-kmin;
       //Read the phi values of the grid...
       start1[0]    = N0p;
-      loc_size1[0] = Np+1;
+      loc_size1[0] = Np_read+1;
       glo_size1[0] = NUM_P+1;
-      double p_kph[Np+1];
+      double p_kph[Np_read+1];
       readPatch( filename , group1 ,"p_kph", p_kph , H5T_NATIVE_DOUBLE , 1 , start1 , loc_size1 , glo_size1 );
-      for( k=0 ; k<Np+1 ; ++k ) theDomain->p_kph[k] = p_kph[k];
+      for( k=kmin ; k<kmax+1 ; ++k ) theDomain->p_kph[k] = p_kph[k-kmin];
+if( Np>1 ){
+   theDomain->p_kph[0 ] = 2.*theDomain->p_kph[   1]-theDomain->p_kph[   2];
+   theDomain->p_kph[Np] = 2.*theDomain->p_kph[Np-1]-theDomain->p_kph[Np-2];
+}
 
       ++(theDomain->t_jph);
       ++(theDomain->p_kph);
@@ -179,13 +187,12 @@ void restart( struct domain * theDomain ){
       //Read the indexing information so you know how to read in
       //The radial tracks of data which are coming up...
       int start2[2]   = {N0t,N0p};
-      int loc_size2[2] = {Nt,Np};
+      int loc_size2[2] = {Nt,Np_read};
       int glo_size2[2] = {NUM_T,NUM_P};
       int Nr[Nt*Np];
+      int Index[Nt*Np];
       readPatch( filename , group1 ,"Nr"   , Nr    , H5T_NATIVE_INT , 2 , start2 , loc_size2 , glo_size2 );
       readPatch( filename , group1 ,"Index", Index , H5T_NATIVE_INT , 2 , start2 , loc_size2 , glo_size2 );
-      int jk;
-      for( jk=0 ; jk<Nt*Np ; ++jk ) theDomain->Nr[jk] = Nr[jk];
 
       getH5dims( filename , group2 ,"Cells", dims );
       int Nc = dims[0];
@@ -196,21 +203,33 @@ void restart( struct domain * theDomain ){
       //tracks belong in memory, they might not be 
       //contiguous, and they definitely are not in a rectangular block.
       for( j=0 ; j<Nt ; ++j ){
-         for( k=0 ; k<Np ; ++k ){
+         for( k=kmin ; k<kmax ; ++k ){
             int jk = j+Nt*k;
-            start2[0] = Index[jk];
+            int jk_read = j+Nt*(k-kmin);
+            theDomain->Nr[jk] = Nr[jk_read];
+            start2[0] = Index[jk_read];
             start2[1] = 0;
-            loc_size2[0] = Nr[jk];
+            loc_size2[0] = Nr[jk_read];
             loc_size2[1] = Nq;
             glo_size2[0] = Nc;
             glo_size2[1] = Nq;
-            double TrackData[Nr[jk]*Nq];
+            double TrackData[Nr[jk_read]*Nq];
             readPatch( filename , group2 ,"Cells", TrackData , H5T_NATIVE_DOUBLE , 2 , start2 , loc_size2 , glo_size2 );
-            theDomain->theCells[jk] = (struct cell *) malloc( Nr[jk]*sizeof(struct cell) );
-            for( i=0 ; i<Nr[jk] ; ++i ){
+            theDomain->theCells[jk] = (struct cell *) malloc( Nr[jk_read]*sizeof(struct cell) );
+            for( i=0 ; i<Nr[jk_read] ; ++i ){
                struct cell * c = theCells[jk]+i;
                Doub2Cell( TrackData + i*Nq , c );
             }
+         }
+         for( k=0 ; k<kmin ; ++k ){
+            int jk = j+Nt*k;
+            theDomain->Nr[jk] = 3;
+            theDomain->theCells[jk] = (struct cell *) malloc( 3*sizeof(struct cell) );
+         }
+         for( k=kmax ; k<Np ; ++k ){
+            int jk = j+Nt*k;
+            theDomain->Nr[jk] = 3;
+            theDomain->theCells[jk] = (struct cell *) malloc( 3*sizeof(struct cell) );
          }
       }
 

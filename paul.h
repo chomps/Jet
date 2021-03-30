@@ -7,11 +7,12 @@ enum{C_FIXED,C_WRIEMANN,C_WCELL};
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #define MOVE_CELLS C_WCELL
 
-#define NUM_C 4
-#define NUM_N 2
+#define NUM_C 4 //5
+#define NUM_N 1
 #define NUM_Q (NUM_C+NUM_N)
 #define NUM_G 2
 
@@ -52,6 +53,9 @@ struct domain{
    double * p_kph;
 
    double g_point_mass;
+
+   time_t Wallt_init;
+   int count_steps;
 
    int rank,size;
    int dim_rank[2];

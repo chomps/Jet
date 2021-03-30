@@ -209,7 +209,7 @@ void vel( double * prim1 , double * prim2 , double * Sl , double * Sr , double *
    double rhoh2 = rho + rhoe + Pp2;
    cs = sqrt(fabs( gam*Pp2/rhoh2 ));
 
-   sigmas = cs*cs/W1/W1/(1.0-cs*cs);
+   sigmas = cs*cs/W2/W2/(1.0-cs*cs);
    double sl = (vn2 - sqrt( sigmas*(1.0 - vn2*vn2 + sigmas) ) )/( 1.0 + sigmas );
    double sr = (vn2 + sqrt( sigmas*(1.0 - vn2*vn2 + sigmas) ) )/( 1.0 + sigmas );
 

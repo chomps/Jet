@@ -20,5 +20,6 @@ void timestep( struct domain * theDomain , double dt ){
    onestep( theDomain , 0.0 , dt , 1 , dt );
 
    theDomain->t += dt;
-   
+   theDomain->count_steps++;
+
 }

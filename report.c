@@ -18,7 +18,10 @@ void report( struct domain * theDomain , double t ){
 
    double L1 = 0.0;
    double uSum = 0.0;
+   double uXSum = 0.0;
    double ESum = 0.0;
+   double ETherm = 0.0;
+   double EXSum = 0.0;
    double EJet = 0.0;
    double XSum = 0.0;
    double MSum = 0.0;
@@ -45,7 +48,10 @@ void report( struct domain * theDomain , double t ){
          double h = 1.+4.*c->prim[PPP]/c->prim[RHO];
          double gam = sqrt( 1. + u*u );
          uSum += u*E;
+         uXSum += u*X*E;
          ESum += E;
+         ETherm += (3.*c->prim[PPP])*c->cons[DEN]/c->prim[RHO];
+         EXSum += E*X;
          dE += E;
          double u_eff = sqrt( gam*h*gam*h - 1.0 );
          if( u_eff > 1.0 ) EJet += E;
@@ -61,7 +67,10 @@ void report( struct domain * theDomain , double t ){
    MPI_Allreduce( MPI_IN_PLACE , &uMax   , 1 , MPI_DOUBLE , MPI_MAX , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &gh_max , 1 , MPI_DOUBLE , MPI_MAX , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &uSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+   MPI_Allreduce( MPI_IN_PLACE , &uXSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &ESum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+   MPI_Allreduce( MPI_IN_PLACE , &ETherm , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
+   MPI_Allreduce( MPI_IN_PLACE , &EXSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &EJet , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &XSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
    MPI_Allreduce( MPI_IN_PLACE , &MSum , 1 , MPI_DOUBLE , MPI_SUM , grid_comm );
@@ -108,7 +117,8 @@ void report( struct domain * theDomain , double t ){
 
    if( rank==0 ){
       FILE * rFile = fopen("report.dat","a");
-      fprintf(rFile,"%e %e %e %e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max,v_phot,Ni,sintj2);
+      fprintf(rFile,"%e %e %e %e %e %e %e %e %e %e %e %e %e\n",t,rMax,rMin,uAv,uMax,ESum,MSum,EJet,gh_max,v_phot,Ni,sintj2,ETherm);
+      //fprintf(rFile,"%e %e %e %e %e\n",t,uSum,ESum,uXSum,EXSum);
       fclose(rFile);
    }
 

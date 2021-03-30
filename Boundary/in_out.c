@@ -43,9 +43,9 @@ double phase1 = .5*(tp+tm);
 double phase2 = vw*t/r1;
 double k_p = wavenumber;
 c1->prim[RHO] *= 1. + Amp*sin(2.5*k_p*phase1)*sin(k_p*phase2);
-c1->prim[RHO] *= 1. + 0.*.5*2.*((double)rand()/(double)RAND_MAX-.5);
+c1->prim[RHO] *= 1. + .99*2.*((double)rand()/(double)RAND_MAX-.5);
  
-         prim2cons( c1->prim , c1->cons , r1 , dV );
+         prim2cons( c1->prim , c1->cons , r1 , .5*(tp+tm) , dV );
          int q;
          for( q=0 ; q<NUM_Q ; ++q ){
             c1->RKcons[q] = c1->cons[q];

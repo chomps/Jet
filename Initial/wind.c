@@ -45,9 +45,9 @@ void initial( double * prim , double * x ){
    double Pp = s*pow(rho,gam);
 
    //rho *= 1. + 1.5*((double)rand()/(double)RAND_MAX-.5);
-   double rho_adjust = sinh(delt0/2.)/(delt0/2.);
-   double dx = delt0*((double)rand()/(double)RAND_MAX - .5);
-   rho *= exp(dx)/rho_adjust;
+//   double rho_adjust = sinh(delt0/2.)/(delt0/2.);
+//   double dx = delt0*((double)rand()/(double)RAND_MAX - .5);
+//   rho *= exp(dx)/rho_adjust;
    //rho *= 1. + 10.*delt0*((double)rand()/(double)RAND_MAX-.5);
 
    prim[RHO] = rho;

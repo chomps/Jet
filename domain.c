@@ -9,6 +9,10 @@ double log_r( double x , double rmin , double rmax ){
    return( rmin*pow(rmax/rmin,x) );
 }
 
+double hybrid_r( double x , double rmin , double rmax , double R ){
+   return( R*pow(rmax/R,x) + rmin-R + (R-rmin)*x );
+}
+
 double target_x( double x , double x0 , double weight ){
    x0 = 2.*x0-1.;
    x = 2.*x-1.;
@@ -17,6 +21,8 @@ double target_x( double x , double x0 , double weight ){
    x = .5*(x+1.);
    return( weight*y + (1.-weight)*x );
 }
+
+void start_clock( struct domain * );
 
 void setupDomain( struct domain * theDomain ){
 
@@ -27,7 +33,8 @@ void setupDomain( struct domain * theDomain ){
    int j,k;
    for( j=0 ; j<Nt ; ++j ){
       for( k=0 ; k<Np ; ++k ){
-         theDomain->theCells[j+Nt*k] = (struct cell *) malloc( Nr[j+Nt*k]*sizeof(struct cell) );
+         //theDomain->theCells[j+Nt*k] = (struct cell *) malloc( Nr[j+Nt*k]*sizeof(struct cell) );
+         theDomain->theCells[j+Nt*k] = (struct cell *) calloc( Nr[j+Nt*k] , sizeof(struct cell) );
       }
    }
    int i;
@@ -43,16 +50,19 @@ void setupDomain( struct domain * theDomain ){
          int jk = j+Nt*k;
          for( i=0 ; i<Nr[jk] ; ++i ){
             double x = (double)(i+1)/(double)Nr[jk];
-            if( i!=0 && i!=Nr[jk]-1 ) x += .125*(double)offset/(double)Nr[jk];
+            if( i!=0 && i!=Nr[jk]-1 ) x += 0.5*.125*(double)offset/(double)Nr[jk];
             x = target_x( x , X0 , W0 );
             double rx = cart_r(x,R_MIN,R_MAX);//R_MIN + x*(R_MAX-R_MIN);
             double rl = log_r(x,R_MIN,R_MAX);//R_MAX*pow(R_MAX/R_MIN,x-1.);
             double rp = rx;
             if( LogWeight > 0.5 ) rp = rl;
+            //rp = hybrid_r( x , R_MIN , R_MAX , 0.1 );
             theDomain->theCells[j+Nt*k][i].riph = rp;//LogWeight*rl + (1.-LogWeight)*rx;
+            theDomain->theCells[j+Nt*k][i].wiph = 0.0;
          }
       }
    }
+
    theDomain->g_point_mass = theDomain->theParList.PointMass*2.0e33;
 
    theDomain->t      = theDomain->theParList.t_min;
@@ -68,6 +78,10 @@ void setupDomain( struct domain * theDomain ){
    theDomain->nrpt=-1;
    theDomain->nsnp=-1;
    theDomain->nchk=-1;
+
+   theDomain->count_steps = 0;
+   start_clock( theDomain );
+
 }
 
 void clear_cell( struct cell * c ){

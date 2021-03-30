@@ -37,6 +37,8 @@ void gridSetup( struct domain * theDomain ){
    theDomain->Nt = Nt;
    theDomain->Np = Np;
 
+//printf("rank %d:  N0t = %d, N1t = %d, Nt = %d.\n",theDomain->rank,N0t,N1t,Nt);
+
    theDomain->Nr    = (int *)    malloc( Np*Nt*sizeof(int) );
    theDomain->t_jph = (double *) malloc( (Nt+1)*sizeof(double) );
    theDomain->p_kph = (double *) malloc( (Np+1)*sizeof(double) );
@@ -50,7 +52,7 @@ void gridSetup( struct domain * theDomain ){
 //   double t0 = THETA_MIN + (double)N0t*dth;
    double dx = 1./NUM_T;
    double x0 = (double)N0t*dx;
-   double th0 = .2;
+   double th0 = .4;
    double thmax = THETA_MAX;
    double k0 = log( tan(.5*(th0+thmax))/tan(.5*th0) );
 
@@ -67,7 +69,7 @@ void gridSetup( struct domain * theDomain ){
    }
 
    for( j=0 ; j<Nt ; ++j ){
-      double dth_j = theDomain->t_jph[j]-theDomain->t_jph[j-1];
+      double dth_j = 1.001*(theDomain->t_jph[j]-theDomain->t_jph[j-1]);
       double dth = (THETA_MAX-THETA_MIN)/(double)NUM_T;
       double nrj = theDomain->theParList.Num_R*dth/dth_j;
       for( k=0 ; k<Np ; ++k ){

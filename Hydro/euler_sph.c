@@ -18,6 +18,8 @@ double get_entropy( double * prim ){
    return( log( prim[PPP] / pow( prim[RHO] , GAMMA_LAW ) ) );
 }
 
+double get_pot( double r );
+
 void prim2cons( double * prim , double * cons , double r , double th , double dV ){
    double rho = prim[RHO];
    double Pp  = prim[PPP];
@@ -26,10 +28,13 @@ void prim2cons( double * prim , double * cons , double r , double th , double dV
    double v2 = vr*vr + vt*vt;
    double gam = GAMMA_LAW;
    double rhoe = Pp/(gam-1.);
+
+   double phi = get_pot( r );
+
    cons[DEN] = rho*dV;
    cons[SS1] = rho*vr*dV;
    cons[SS2] = r*rho*vt*dV;
-   cons[TAU] = (.5*rho*v2 + rhoe)*dV;
+   cons[TAU] = (.5*rho*v2 + rhoe + rho*phi )*dV;
 
    int q;
    for( q=NUM_C ; q<NUM_C+NUM_N ; ++q ){
@@ -47,12 +52,17 @@ void cons2prim( double * cons , double * prim , double r , double th , double dV
    double vr = Sr/rho;
    double vt = St/rho;
    double v2 = vr*vr + vt*vt;
-   double rhoe = E - .5*rho*v2;
+
+   double phi = get_pot( r );
+
+   double rhoe = E - .5*rho*v2 - rho*phi;
+
    double gam = GAMMA_LAW;
    double Pp = (gam-1.)*rhoe;
 
    if( rho<RHO_FLOOR ) rho=RHO_FLOOR;
    if( Pp < PRE_FLOOR*rho ) Pp = PRE_FLOOR*rho;
+
 
    prim[RHO] = rho;
    prim[PPP] = Pp;
@@ -76,6 +86,7 @@ void getUstar( double * prim , double * Ustar , double r , double th , double Sk
    double vn = vr*n[0] + vt*n[1];
    double gam = GAMMA_LAW;
 
+   double phi = get_pot( r );
    double rhoe = Pp/(gam-1.);
 
    double rhostar = rho*(Sk - vn)/(Sk - Ss);
@@ -85,7 +96,7 @@ void getUstar( double * prim , double * Ustar , double r , double th , double Sk
    Ustar[DEN] = rhostar;
    Ustar[SS1] = rhostar*( vr + (Ss-vn)*n[0] );
    Ustar[SS2] = r*rhostar*( vt + (Ss-vn)*n[1] );
-   Ustar[TAU] = .5*rhostar*v2 + Us + rhostar*Ss*(Ss - vn) + Pstar;
+   Ustar[TAU] = .5*rhostar*v2 + Us + rhostar*Ss*(Ss - vn) + rhostar*phi + Pstar;
 
    int q;
    for( q=NUM_C ; q<NUM_Q ; ++q ){
@@ -104,11 +115,13 @@ void flux( double * prim , double * flux , double r , double th , double * n ){
    double vn  = vr*n[0] + vt*n[1];
    double gam = GAMMA_LAW;
    double rhoe = Pp/(gam-1.);
+
+   double phi = get_pot( r );
  
    flux[DEN] = rho*vn;
    flux[SS1] = rho*vr*vn + Pp*n[0];
    flux[SS2] = r*( rho*vt*vn + Pp*n[1] );
-   flux[TAU] = (.5*rho*v2 + rhoe + Pp)*vn;
+   flux[TAU] = (.5*rho*v2 + rhoe + rho*phi + Pp)*vn;
 
    int q;
    for( q=NUM_C ; q<NUM_C+NUM_N ; ++q ){

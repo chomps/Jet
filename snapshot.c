@@ -112,6 +112,13 @@ void snapshot( struct domain * theDomain , char * filestart ){
    strcat( fname_th1 , "_rad1.dat" );
 
    if( rank==0 ){
+      double M_grid[NUM_R];
+      double M = 0.0;
+      for( i=0 ; i<NUM_R ; ++i ){
+         double dM = cons_1d_avg[i*NUM_Q];
+         M_grid[i] = M+.5*dM;
+         M += dM;
+      }
       FILE * pFile_1d = fopen(fname_rad,"w");
       for( i=0 ; i<NUM_R ; ++i ){
          double P_out[NUM_Q];
@@ -125,6 +132,7 @@ void snapshot( struct domain * theDomain , char * filestart ){
          double dV = get_dV( xp , xm );
          cons2prim( &(cons_1d_avg[i*NUM_Q]) , P_out , r , dV );
          fprintf(pFile_1d,"%e ",r);
+         fprintf(pFile_1d,"%e ",M_grid[i]);
          for( q=0 ; q<NUM_Q ; ++q ){
             fprintf(pFile_1d,"%e ",P_out[q]);
             fprintf(pFile_1d,"%e ",prim_1d_avg[i*NUM_Q+q]/dV);

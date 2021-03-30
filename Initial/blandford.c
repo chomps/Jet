@@ -13,26 +13,29 @@ void initial( double * prim , double * x ){
    double rho0 = 1.0;
    double Pmin = 1e-5;
 
+   double k = 2.0;
 
    double E = 1.0;
    double t = T_MIN;
    double l = pow(E/rho0,1./3.);
-   double G = sqrt(17./8./M_PI)*pow(t/l,-1.5);
+   double rho_out = rho0*pow(t/l,-k);
+   double G = sqrt((17.-4.*k)/8./M_PI)*pow(E/rho_out/t/t/t,.5);
+   double m = 3.-k;
 
-/*
-   double G = 100.0;
-   double t = 1.0;
-*/
-   double R = (1.-1./8./G/G)*t;
+//   double R = ( 1. - 1./(2.*(m+1.)*G*G) )*t;
 
-   double chi = (1.+8.*G*G)*(1.-r/t);
+   double chi = (1.+2.*(m+1.)*G*G)*(1.-r/t);
 
-   double Pp  = (2./3.)*rho0*G*G*pow(chi,-17./12.);
-   double gam = G/sqrt(2.*chi);
-   double rho = 2.*rho0*G*G*pow(chi,-7./4.)/gam;
+   double f = pow(chi,-(17.-4.*k)/(12.-3.*k));
+   double g = 1./chi;
+   double h = pow(chi,-(7.-2.*k)/(4.-k));
+
+   double Pp  = (2./3.)*rho_out*G*G*f;//pow(chi,-17./12.);
+   double gam = G*sqrt(.5*g); //sqrt(2.*chi);
+   double rho = 2.*rho_out*G*G*h/gam; //pow(chi,-7./4.)/gam;
    
    if( chi < 1.0 ){//r > R ){
-      rho = rho0;
+      rho = rho0*pow(r/l,-k);
       Pp = Pmin;
       gam = 0.0;
    }

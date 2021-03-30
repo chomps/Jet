@@ -162,6 +162,7 @@ void move_BCs( struct domain * theDomain , double dt ){
    double * p_kph = theDomain->p_kph;
    double ShockPos = theDomain->theParList.ShockPos;
 
+   int homologous_BCs = 0;
 //   double r_outer = theCells[0][Nr[0]-1].riph + theCells[0][Nr[0]-1].dr;
 
    double max_vel = 0.0;
@@ -205,16 +206,19 @@ void move_BCs( struct domain * theDomain , double dt ){
    double rmax = theCells[0][Nr[0]-1].riph;
    double rhalf = ShockPos*rmax + (1.-ShockPos)*rmin;
    w1 *= ( 1. + log(r1/rhalf)/log(rmax/rhalf) );
-/*
-   w1 = 1.0;
-   r1 = w1*theDomain->t;
-*/
+
+   if( homologous_BCs ){
+      w1 = 1.0;
+      r1 = w1*theDomain->t;
+   }
+   
    if( w1 > 0.0 ){
-  
+
+
       double w_out = w1*(rmax/r1);
       double w_in  = w1*(rmin/r1);
 //This shit should not be hard-coded.  Fix this when you fix that Nickel crap. 
-      if( w_in > 1e-3 ) w_in = 1e-3;
+//      if( w_in > 1e-3 ) w_in = 1e-3;
 
       double rmin_new = rmin + w_in*dt;
       double rmax_new = rmax + w_out*dt;
@@ -336,7 +340,7 @@ void regrid( struct domain * theDomain ){
    int * Nr = theDomain->Nr;
    double * t_jph = theDomain->t_jph;
    double * p_kph = theDomain->p_kph;
-   double jthresh = 1.0;
+   double jthresh = 0.1;
    int i,j,k;
    for( j=0 ; j<Nt ; ++j ){
    for( k=0 ; k<Np ; ++k ){
@@ -348,7 +352,7 @@ void regrid( struct domain * theDomain ){
             double rp = c->riph;
             double rm = (c-1)->riph;
             int Nsplit = (int)(fabs(jump/jthresh));
-            if(Nsplit>5) Nsplit=5;
+            if(Nsplit>3) Nsplit=3;
             if(Nsplit>3) printf("r=%.2e jump=%.2e split = %d (No Cause For Alarm)\n",theCells[jk][i].riph,jump,Nsplit);
             int blocksize = (Nr[jk]-1) - i;
             Nr[jk] += Nsplit;
@@ -546,7 +550,7 @@ void longandshort( struct domain * theDomain , double * L , double * S , int * i
    *L = 0.0; 
    *S = 0.0; 
    int i;
-   for( i=1 ; i<Nr[jk] ; ++i ){
+   for( i=1 ; i<Nr[jk]-1 ; ++i ){
       struct cell * c = sweep+i;
       //double * prim = c->prim;
       //double w = c->wiph;
@@ -700,13 +704,19 @@ void make_nickel( struct domain * theDomain ){
    if( NUM_N>0 ){
       int i,jk;
       for( jk=0 ; jk<Nt*Np ; ++jk ){
-         for( i=0 ; i<Nr[jk]-1 ; ++i ){
+         for( i=0 ; i<Nr[jk] ; ++i ){
             struct cell * c = &(theCells[jk][i]);  
             double Pp = c->prim[PPP];
+            if( c->prim[NUM_C] < Pp ){
+               c->prim[NUM_C] = Pp;
+               c->cons[NUM_C] = c->prim[NUM_C]*c->cons[DEN];
+            }
+/*
             if( Pp > 60. ){
                c->prim[NUM_C] = 1.0; 
                c->cons[NUM_C] = c->cons[DEN];
             }
+*/
          }    
       }    
    }  

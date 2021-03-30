@@ -1,12 +1,14 @@
 
 #include "paul.h"
 
-#define G_CONST     6.673e-8
+//#define G_CONST     6.673e-8
+#define G_CONST     1.0
 //#define G_NUM_R     1000 //This should really be NUM_R
 //#define G_EPS       0.0
 
 static int G_NUM_R=0;
 static double * Menc = NULL;
+static double * Pot  = NULL;
 //static double Menc[G_NUM_R];
 
 void clear_menc( double g_point_mass ){
@@ -37,10 +39,24 @@ double menc_force( double x , double r ){
    double M1;
    if(ir<G_NUM_R-1) M1 = Menc[ir+1]; else M1 = Menc[ir];
    double M = M0*(1.-dx) + M1*dx;
+
+//
+double rhoc = 1./4./M_PI/sqrt(3.);
+   M = 4.*M_PI/3.*rhoc*r*r*r/pow(1. + r*r/3.,1.5);
+//
+
    double f = -G_CONST*M/r/r;
 
    return(f);
 
+}
+
+double get_pot( double r ){
+   double rhoc = 1./4./M_PI/sqrt(3.);
+   double phi = -4.*M_PI*G_CONST*rhoc/sqrt( 1. + r*r/3. );
+//phi = 0.0;
+
+   return( phi );
 }
 
 void grav_src( double * cons , double dt , double r , double x ){
@@ -49,11 +65,16 @@ void grav_src( double * cons , double dt , double r , double x ){
    double Sr = cons[SS1];
    
    double f = menc_force( x , r );
-
+/* 
+   double GM = 6.67e-8*5.45*2e33;
+   double R = 2.47*7e10;
+   double f = -GM/r/r;
+   if( r<R ) f = 0.0;
+*/
    //printf("F=%e\n",m*f*dt);
 
    cons[SS1] += m*f*dt;
-   cons[TAU] += Sr*f*dt;
+//   cons[TAU] += Sr*f*dt;
 
 }
 

@@ -19,7 +19,7 @@ void setupDomain( struct domain * );
 void freeDomain( struct domain * );
 void check_dt( struct domain * , double * );
 void possiblyOutput( struct domain * , int );
-
+void generate_log( struct domain * );
 
 int main( int argc , char * argv[] ){
    
@@ -49,7 +49,8 @@ int main( int argc , char * argv[] ){
       FILE * rFile = fopen("report.dat","w");
       fclose(rFile);
    } 
- 
+
+
    while( !(theDomain.final_step) ){
 
       double dt = getmindt( &theDomain );
@@ -60,6 +61,7 @@ int main( int argc , char * argv[] ){
    }
 
    possiblyOutput( &theDomain , 1 );
+   generate_log( &theDomain );
    MPI_Barrier(theDomain.theComm);
    MPI_Comm_free(&(theDomain.theComm));
    MPI_Finalize();

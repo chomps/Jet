@@ -14,7 +14,8 @@ void initial( double * prim , double * x ){
    double R0 = 1.0;
    double r  = x[0];
 
-   double rhoc = 0.076415*M0/pow(R0,3.);
+   //double rhoc = 0.076415*M0/pow(R0,3.);
+   double rhoc = 0.085*M0/pow(R0,3.);
 
    double k = 6.0;
    double k2 = 1.5;
@@ -32,8 +33,8 @@ void initial( double * prim , double * x ){
 
    double rho = rhoc*pow(r/R0,-k3)*pow(X,k2)/pow( 1. + pow(A/rhoc*pow(r/R0,-k) ,-n) ,1./n) + rho_wind*pow(Rmax/r,2.);
 
-   double rho_max = 3e4;
-   if( rho > rho_max ) rho = .5*rho_max;
+   double rho_max = 1e6;
+   if( rho > rho_max ) rho = rho_max;
 
    double Pp = 1e-4*rho;
    if( Pp > 10.*M0/R0/R0/R0 ) Pp = 10.*M0/R0/R0/R0;

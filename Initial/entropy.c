@@ -7,14 +7,14 @@ void setICparams( struct domain * theDomain ){
 void initial( double * prim , double * x ){
 
    double R0 = 5.0;
-   double t0 = 1.45;
-   double p0 = 0.15;
+   double t0 = 0.0;//1.45;
+   double p0 = 0.0;//0.15;
    
    double x0 = R0*sin(t0)*cos(p0);
    double y0 = R0*sin(t0)*sin(p0);
    double z0 = R0*cos(t0);
 
-   double A  = 3.0;//7e2;
+   double A  = 30.0;//7e2;
 
    double r  = x[0];
    double th = x[1];
@@ -26,10 +26,10 @@ void initial( double * prim , double * x ){
    double rho,Pp,delta;
    delta = 0.0;
    //if( rr < R ){
-      delta = A*exp(-80.*rr*rr);//exp(1./(rr*rr-R*R));
+      delta = A*exp(-3.*rr*rr);//exp(1./(rr*rr-R*R));
    //}
    rho = 1.0*(1.+delta);;
-   Pp = pow(rho,5./3.);
+   Pp = pow(rho,4./3.);
    prim[RHO] = rho;
    prim[PPP] = Pp;
    prim[UU1] = 0.0;

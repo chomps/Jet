@@ -9,6 +9,8 @@ void setICparams( struct domain * theDomain ){
    R_MIN = theDomain->theParList.rmin;
    GAMMA_LAW = theDomain->theParList.Adiabatic_Index;
    ETA = theDomain->theParList.Explosion_Energy;
+   srand(666);
+   rand();
 }
 
 void initial( double * prim , double * x ){
@@ -36,11 +38,13 @@ void initial( double * prim , double * x ){
       v = vmax*r/r0;
       X = 1.0;
    }
+   double vpert = 1e-3*v*((double)rand()/(double)RAND_MAX-.5);
  
    prim[RHO] = rho;
    prim[PPP] = Pmin;
-   prim[UU1] = v;
+   prim[UU1] = v + vpert;
    prim[UU2] = 0.0;
+   if( NUM_C > 4 ) prim[UU3] = 0.0;
    if( NUM_N > 0 ) prim[NUM_C] = X;
 
 }
