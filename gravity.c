@@ -2,7 +2,7 @@
 #include "paul.h"
 
 //#define G_CONST     6.673e-8
-#define G_CONST     1.0
+#define G_CONST     0.0
 //#define G_NUM_R     1000 //This should really be NUM_R
 //#define G_EPS       0.0
 
@@ -54,7 +54,7 @@ double rhoc = 1./4./M_PI/sqrt(3.);
 double get_pot( double r ){
    double rhoc = 1./4./M_PI/sqrt(3.);
    double phi = -4.*M_PI*G_CONST*rhoc/sqrt( 1. + r*r/3. );
-//phi = 0.0;
+phi = 0.0;
 
    return( phi );
 }
