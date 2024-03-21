@@ -1,7 +1,7 @@
 
 #include "../paul.h"
 
-double get_dL( double * xp , double * xm , double dx , int dim ){
+double get_dL( double * xp , double * xm , int dim ){
    double r  = .5*(xp[0]+xm[0]);
    double th = .5*(xp[1]+xm[1]);
    if( dim==0 ) return( xp[0]-xm[0] );
